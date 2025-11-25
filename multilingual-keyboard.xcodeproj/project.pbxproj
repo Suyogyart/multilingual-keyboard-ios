@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		7CA88F252ED6279000E9BF74 /* nepa-key.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7CA88F1E2ED6279000E9BF74 /* nepa-key.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		7CA88EFD2ED6255500E9BF74 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,12 +25,34 @@
 			remoteGlobalIDString = 7CA88EE52ED6255400E9BF74;
 			remoteInfo = "multilingual-keyboard";
 		};
+		7CA88F232ED6279000E9BF74 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7CA88EDE2ED6255400E9BF74 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7CA88F1D2ED6279000E9BF74;
+			remoteInfo = "nepa-key";
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		7CA88F2A2ED6279000E9BF74 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				7CA88F252ED6279000E9BF74 /* nepa-key.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		7CA88EE62ED6255400E9BF74 /* multilingual-keyboard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "multilingual-keyboard.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7CA88EFC2ED6255500E9BF74 /* multilingual-keyboardTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "multilingual-keyboardTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7CA88F062ED6255500E9BF74 /* multilingual-keyboardUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "multilingual-keyboardUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7CA88F1E2ED6279000E9BF74 /* nepa-key.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "nepa-key.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -36,6 +62,13 @@
 				Info.plist,
 			);
 			target = 7CA88EE52ED6255400E9BF74 /* multilingual-keyboard */;
+		};
+		7CA88F292ED6279000E9BF74 /* Exceptions for "nepa-key" folder in "nepa-key" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 7CA88F1D2ED6279000E9BF74 /* nepa-key */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -56,6 +89,14 @@
 		7CA88F092ED6255500E9BF74 /* multilingual-keyboardUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "multilingual-keyboardUITests";
+			sourceTree = "<group>";
+		};
+		7CA88F1F2ED6279000E9BF74 /* nepa-key */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7CA88F292ED6279000E9BF74 /* Exceptions for "nepa-key" folder in "nepa-key" target */,
+			);
+			path = "nepa-key";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -82,6 +123,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7CA88F1B2ED6279000E9BF74 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -91,6 +139,7 @@
 				7CA88EE82ED6255400E9BF74 /* multilingual-keyboard */,
 				7CA88EFF2ED6255500E9BF74 /* multilingual-keyboardTests */,
 				7CA88F092ED6255500E9BF74 /* multilingual-keyboardUITests */,
+				7CA88F1F2ED6279000E9BF74 /* nepa-key */,
 				7CA88EE72ED6255400E9BF74 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -101,6 +150,7 @@
 				7CA88EE62ED6255400E9BF74 /* multilingual-keyboard.app */,
 				7CA88EFC2ED6255500E9BF74 /* multilingual-keyboardTests.xctest */,
 				7CA88F062ED6255500E9BF74 /* multilingual-keyboardUITests.xctest */,
+				7CA88F1E2ED6279000E9BF74 /* nepa-key.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -115,10 +165,12 @@
 				7CA88EE22ED6255400E9BF74 /* Sources */,
 				7CA88EE32ED6255400E9BF74 /* Frameworks */,
 				7CA88EE42ED6255400E9BF74 /* Resources */,
+				7CA88F2A2ED6279000E9BF74 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				7CA88F242ED6279000E9BF74 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				7CA88EE82ED6255400E9BF74 /* multilingual-keyboard */,
@@ -176,6 +228,28 @@
 			productReference = 7CA88F062ED6255500E9BF74 /* multilingual-keyboardUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		7CA88F1D2ED6279000E9BF74 /* nepa-key */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7CA88F262ED6279000E9BF74 /* Build configuration list for PBXNativeTarget "nepa-key" */;
+			buildPhases = (
+				7CA88F1A2ED6279000E9BF74 /* Sources */,
+				7CA88F1B2ED6279000E9BF74 /* Frameworks */,
+				7CA88F1C2ED6279000E9BF74 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				7CA88F1F2ED6279000E9BF74 /* nepa-key */,
+			);
+			name = "nepa-key";
+			packageProductDependencies = (
+			);
+			productName = "nepa-key";
+			productReference = 7CA88F1E2ED6279000E9BF74 /* nepa-key.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -197,6 +271,9 @@
 						CreatedOnToolsVersion = 26.1;
 						TestTargetID = 7CA88EE52ED6255400E9BF74;
 					};
+					7CA88F1D2ED6279000E9BF74 = {
+						CreatedOnToolsVersion = 26.1;
+					};
 				};
 			};
 			buildConfigurationList = 7CA88EE12ED6255400E9BF74 /* Build configuration list for PBXProject "multilingual-keyboard" */;
@@ -216,6 +293,7 @@
 				7CA88EE52ED6255400E9BF74 /* multilingual-keyboard */,
 				7CA88EFB2ED6255500E9BF74 /* multilingual-keyboardTests */,
 				7CA88F052ED6255500E9BF74 /* multilingual-keyboardUITests */,
+				7CA88F1D2ED6279000E9BF74 /* nepa-key */,
 			);
 		};
 /* End PBXProject section */
@@ -236,6 +314,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		7CA88F042ED6255500E9BF74 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7CA88F1C2ED6279000E9BF74 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -266,6 +351,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7CA88F1A2ED6279000E9BF74 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -278,6 +370,11 @@
 			isa = PBXTargetDependency;
 			target = 7CA88EE52ED6255400E9BF74 /* multilingual-keyboard */;
 			targetProxy = 7CA88F072ED6255500E9BF74 /* PBXContainerItemProxy */;
+		};
+		7CA88F242ED6279000E9BF74 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7CA88F1D2ED6279000E9BF74 /* nepa-key */;
+			targetProxy = 7CA88F232ED6279000E9BF74 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -294,7 +391,7 @@
 				INFOPLIST_FILE = "multilingual-keyboard/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIMainStoryboardFile = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -326,7 +423,7 @@
 				INFOPLIST_FILE = "multilingual-keyboard/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIMainStoryboardFile = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -551,6 +648,62 @@
 			};
 			name = Release;
 		};
+		7CA88F272ED6279000E9BF74 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = HHJVU2857R;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "nepa-key/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "nepa-key";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.callijatra.multilingual-keyboard.nepa-key";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		7CA88F282ED6279000E9BF74 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = HHJVU2857R;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "nepa-key/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "nepa-key";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.callijatra.multilingual-keyboard.nepa-key";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -586,6 +739,15 @@
 			buildConfigurations = (
 				7CA88F182ED6255500E9BF74 /* Debug */,
 				7CA88F192ED6255500E9BF74 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7CA88F262ED6279000E9BF74 /* Build configuration list for PBXNativeTarget "nepa-key" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7CA88F272ED6279000E9BF74 /* Debug */,
+				7CA88F282ED6279000E9BF74 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
