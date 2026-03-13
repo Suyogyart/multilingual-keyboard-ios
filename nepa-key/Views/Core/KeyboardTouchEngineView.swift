@@ -122,6 +122,13 @@ class KeyboardTouchEngineView: UIView {
             activeTouchTarget = key
             highlight(key: key, active: true)
             
+            // Fire haptic immediately on finger-down — this is what makes it feel native.
+            // Special keys (space, return, shift, delete, layout switchers) get a slightly
+            // heavier medium impact; regular character keys get a light tap.
+            let specialKeyIDs = ["space", "return", "shift", "delete", "numbers", "letters", "symbols", "globe"]
+            HapticEngine.shared.playTap(isSpecialKey: specialKeyIDs.contains(key.id))
+            UIDevice.current.playInputClick()
+            
             if key.id == "delete" {
                 delegate?.deleteCharacter()
                 startDeleteTimer()
@@ -235,6 +242,10 @@ class KeyboardTouchEngineView: UIView {
             self.deleteHoldDuration += 0.1
             
             if self.deleteHoldDuration < 0.4 { return }
+            
+            // Pulse a light haptic on each repeated delete so the hold feels physical
+            HapticEngine.shared.playTap(isSpecialKey: false)
+            UIDevice.current.playInputClick()
             
             self.delegate?.deleteCharacter()
             if self.deleteHoldDuration > 1.5 {

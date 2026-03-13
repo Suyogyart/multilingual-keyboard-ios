@@ -21,6 +21,10 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
     // Tracks the time of the last shift tap
     private var lastShiftTapTime: TimeInterval = 0
     
+    override func loadView() {
+        self.view = KeyboardInputView()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -124,7 +128,6 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
         
         // 2. Insert the standard character (already resolved by TouchEngineView)
         self.textDocumentProxy.insertText(text)
-        UIDevice.current.playInputClick()
         
         // 3. Auto-revert single-shift state
         if touchEngineView.currentShiftState == .uppercased {
@@ -134,7 +137,6 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
     
     func deleteCharacter() {
         self.textDocumentProxy.deleteBackward()
-        UIDevice.current.playInputClick()
     }
     
     // --- Alternate Popover Handling ---
