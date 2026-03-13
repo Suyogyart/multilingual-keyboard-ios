@@ -1,0 +1,45 @@
+{
+  "languageCode": "en-US",
+  "rows": [
+    [
+      { "id": "q", "primaryLabel": "q", "shiftLabel": "Q", "alternates": ["1"], "widthMultiplier": 1.0 },
+      { "id": "w", "primaryLabel": "w", "shiftLabel": "W", "alternates": ["2"], "widthMultiplier": 1.0 },
+      { "id": "e", "primaryLabel": "e", "shiftLabel": "E", "alternates": ["3", "é", "è", "ê", "ë", "ब", "क", "म", "ा", "न", "ज"], "widthMultiplier": 1.0 },
+      { "id": "r", "primaryLabel": "r", "shiftLabel": "R", "alternates": ["4"], "widthMultiplier": 1.0 },
+      { "id": "t", "primaryLabel": "t", "shiftLabel": "T", "alternates": ["5"], "widthMultiplier": 1.0 },
+      { "id": "y", "primaryLabel": "y", "shiftLabel": "Y", "alternates": ["6"], "widthMultiplier": 1.0 },
+      { "id": "u", "primaryLabel": "u", "shiftLabel": "U", "alternates": ["7", "ú", "ü"], "widthMultiplier": 1.0 },
+      { "id": "i", "primaryLabel": "i", "shiftLabel": "I", "alternates": ["8", "í", "ï"], "widthMultiplier": 1.0 },
+      { "id": "o", "primaryLabel": "o", "shiftLabel": "O", "alternates": ["9", "ó", "ö", "ô"], "widthMultiplier": 1.0 },
+      { "id": "p", "primaryLabel": "p", "shiftLabel": "P", "alternates": ["0"], "widthMultiplier": 1.0 }
+    ],
+    [
+      { "id": "a", "primaryLabel": "a", "shiftLabel": "A", "alternates": ["á", "ä", "æ"], "widthMultiplier": 1.0 },
+      { "id": "s", "primaryLabel": "s", "shiftLabel": "S", "alternates": ["ß", "ś"], "widthMultiplier": 1.0 },
+      { "id": "d", "primaryLabel": "d", "shiftLabel": "D", "alternates": ["đ"], "widthMultiplier": 1.0 },
+      { "id": "f", "primaryLabel": "f", "shiftLabel": "F", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "g", "primaryLabel": "g", "shiftLabel": "G", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "h", "primaryLabel": "h", "shiftLabel": "H", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "j", "primaryLabel": "j", "shiftLabel": "J", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "k", "primaryLabel": "k", "shiftLabel": "K", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "l", "primaryLabel": "l", "shiftLabel": "L", "alternates": [], "widthMultiplier": 1.0 }
+    ],
+    [
+      { "id": "shift", "primaryLabel": "⇧", "isAction": true, "alternates": [], "widthMultiplier": 1.5 },
+      { "id": "z", "primaryLabel": "z", "shiftLabel": "Z", "alternates": ["ž"], "widthMultiplier": 1.0 },
+      { "id": "x", "primaryLabel": "x", "shiftLabel": "X", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "c", "primaryLabel": "c", "shiftLabel": "C", "alternates": ["ç", "ć"], "widthMultiplier": 1.0 },
+      { "id": "v", "primaryLabel": "v", "shiftLabel": "V", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "b", "primaryLabel": "b", "shiftLabel": "B", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "n", "primaryLabel": "n", "shiftLabel": "N", "alternates": ["ñ", "ń"], "widthMultiplier": 1.0 },
+      { "id": "m", "primaryLabel": "m", "shiftLabel": "M", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "delete", "primaryLabel": "⌫", "isAction": true, "alternates": [], "widthMultiplier": 1.5 }
+    ],
+    [
+      { "id": "numbers", "primaryLabel": "123", "fontSize": 18, "isAction": true, "alternates": [], "widthMultiplier": 1.5 },
+      { "id": "globe", "primaryLabel": "🌐", "alternates": ["ब", "क", "म", "ा", "न", "ज", "ब", "क", "म", "ा", "न", "ज", "ब", "क", "म", "ा", "न", "ज"], "isAction": true, "widthMultiplier": 1.0 },
+      { "id": "space", "primaryLabel": "", "alternates": [], "isAction": true, "widthMultiplier": 5.0 },
+      { "id": "return", "primaryLabel": "⏎", "alternates": [], "isAction": true, "widthMultiplier": 2.0 }
+    ]
+  ]
+}

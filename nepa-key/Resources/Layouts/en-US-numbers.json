@@ -1,0 +1,44 @@
+{
+  "languageCode": "en-US-numbers",
+  "rows": [
+    [
+      { "id": "1", "primaryLabel": "1", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "2", "primaryLabel": "2", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "3", "primaryLabel": "3", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "4", "primaryLabel": "4", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "5", "primaryLabel": "5", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "6", "primaryLabel": "6", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "7", "primaryLabel": "7", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "8", "primaryLabel": "8", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "9", "primaryLabel": "9", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "0", "primaryLabel": "0", "alternates": [], "widthMultiplier": 1.0 }
+    ],
+    [
+      { "id": "-", "primaryLabel": "-", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "/", "primaryLabel": "/", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": ":", "primaryLabel": ":", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": ";", "primaryLabel": ";", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "(", "primaryLabel": "(", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": ")", "primaryLabel": ")", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "$", "primaryLabel": "$", "alternates": ["€", "£", "¥", "₩", "₽"], "widthMultiplier": 1.0 },
+      { "id": "&", "primaryLabel": "&", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "@", "primaryLabel": "@", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "\"", "primaryLabel": "\"", "alternates": ["”", "“", "„", "»", "«"], "widthMultiplier": 1.0 }
+    ],
+    [
+      { "id": "symbols", "primaryLabel": "#+=", "fontSize": 18, "isAction": true, "alternates": [], "widthMultiplier": 1.5 },
+      { "id": ".", "primaryLabel": ".", "alternates": ["…"], "widthMultiplier": 1.4 },
+      { "id": ",", "primaryLabel": ",", "alternates": [], "widthMultiplier": 1.4 },
+      { "id": "?", "primaryLabel": "?", "alternates": ["¿"], "widthMultiplier": 1.4 },
+      { "id": "!", "primaryLabel": "!", "alternates": ["¡"], "widthMultiplier": 1.4 },
+      { "id": "'", "primaryLabel": "'", "alternates": ["’", "‘", "`"], "widthMultiplier": 1.4 },
+      { "id": "delete", "primaryLabel": "⌫", "isAction": true, "alternates": [], "widthMultiplier": 1.5 }
+    ],
+    [
+      { "id": "letters", "primaryLabel": "ABC", "fontSize": 18, "isAction": true, "alternates": [], "widthMultiplier": 1.5 },
+      { "id": "globe", "primaryLabel": "🌐", "isAction": true, "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "space", "primaryLabel": "", "isAction": true, "alternates": [], "widthMultiplier": 5.0 },
+      { "id": "return", "primaryLabel": "⏎", "isAction": true, "alternates": [], "widthMultiplier": 2.0 }
+    ]
+  ]
+}
