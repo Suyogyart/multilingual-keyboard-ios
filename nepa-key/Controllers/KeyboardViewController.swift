@@ -18,18 +18,48 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
     var touchEngineView: KeyboardTouchEngineView!
     var activeCalloutView: AlternatesCalloutView?
     
-    // Tracks the time of the last shift tap
+    // Change the cache to use a String key for unique identification
+    private var layoutCache: [String: KeyboardLayout] = [:]
+    
+    // Add a property to track the active language
+    private var currentLanguageCode: String = "en-US"
+    private var currentLayoutType: KeyboardLayoutType = .letters
+    
+    // Timers for native shortcuts
     private var lastShiftTapTime: TimeInterval = 0
+    private var lastSpaceTapTime: TimeInterval = 0 // ADDED: For double-tap period
     
     override func loadView() {
-        self.view = KeyboardInputView()
+        self.view = KeyboardInputView() // Assuming this is defined elsewhere in your project
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         self.view.backgroundColor = .clear
         
+        // 1. ADDED: Instant Native Backdrop (Frosted Glass)
+        let blurEffect = UIBlurEffect(style: traitCollection.userInterfaceStyle == .dark ? .dark : .light)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        blurView.frame = self.view.bounds
+        blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.view.insertSubview(blurView, at: 0)
+        
+        setupTouchEngine()
+        
+        // 2. Instant Static Load (Zero Lag)
+        self.currentLayoutType = .letters
+        self.currentLanguageCode = "en-US"
+        self.touchEngineView.applyLanguageLayout(KeyboardLayout.defaultEnglish)
+        
+        // 3. Seed the cache
+        let key = cacheKey(for: currentLanguageCode, type: currentLayoutType)
+        self.layoutCache[key] = KeyboardLayout.defaultEnglish
+        
+        // 4. Start loading Numbers and Symbols in the background
+        prewarmLayouts(for: currentLanguageCode)
+    }
+    
+    private func setupTouchEngine() {
         touchEngineView = KeyboardTouchEngineView()
         touchEngineView.delegate = self
         touchEngineView.translatesAutoresizingMaskIntoConstraints = false
@@ -43,90 +73,103 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
             touchEngineView.leftAnchor.constraint(equalTo: self.view.leftAnchor),
             touchEngineView.rightAnchor.constraint(equalTo: self.view.rightAnchor)
         ])
-        
-        switchLayout(to: .letters)
     }
     
-    // Replace the old private func loadEnglishLayout() with this:
-    private func switchLayout(to type: KeyboardLayoutType) {
-        let filename: String
+    private func prewarmLayouts(for language: String) {
+        let allTypes: [KeyboardLayoutType] = [.letters, .numbers, .symbols]
         
-        switch type {
-        case .letters:
-            filename = "en-US"
-        case .numbers:
-            filename = "en-US-numbers"
-        case .symbols:
-            filename = "en-US-symbols" // Make sure to create this file later!
+        for type in allTypes {
+            let filename = getFilename(for: language, type: type)
+            let key = cacheKey(for: language, type: type)
+            
+            // Skip if already cached
+            if layoutCache[key] != nil { continue }
+            
+            LayoutManager.loadLayoutAsync(named: filename) { [weak self] layout in
+                guard let self = self, let layout = layout else { return }
+                
+                self.layoutCache[key] = layout
+                
+                // If the user tapped faster than the background thread, show it immediately
+                if self.currentLanguageCode == language && self.currentLayoutType == type {
+                    self.touchEngineView.applyLanguageLayout(layout)
+                }
+            }
         }
+    }
+    
+    private func getFilename(for language: String, type: KeyboardLayoutType) -> String {
+        switch type {
+        case .letters: return language
+        case .numbers: return "\(language)-numbers"
+        case .symbols: return "\(language)-symbols"
+        }
+    }
+    
+    func switchLayout(to type: KeyboardLayoutType, language: String? = nil) {
+        if let lang = language { self.currentLanguageCode = lang }
+        self.currentLayoutType = type
         
-        if let layout = LayoutManager.loadLayout(named: filename) {
-            // This immediately wipes the old UI and mathematically draws the new grid!
-            self.touchEngineView.applyLanguageLayout(layout)
+        let key = cacheKey(for: currentLanguageCode, type: currentLayoutType)
+        
+        // 1. Check Cache
+        if let cachedLayout = layoutCache[key] {
+            self.touchEngineView.applyLanguageLayout(cachedLayout)
         } else {
-            print("Critical Error: Failed to load \(filename).json")
+            // 2. Trigger fallback load (In case they tap before prewarm finishes)
+            prewarmLayouts(for: currentLanguageCode)
         }
     }
     
     // MARK: - KeyboardEngineDelegate Implementation
     
     func insertCharacter(_ text: String) {
+        // NOTE: I removed UIDevice.current.playInputClick() from here
+        // because you already play it inside KeyboardTouchEngineView.touchesBegan!
         
         // Layout Switching Logic
-        if text == "numbers" {
-            switchLayout(to: .numbers)
-            UIDevice.current.playInputClick()
-            return
-        }
-        
-        if text == "letters" {
-            switchLayout(to: .letters)
-            UIDevice.current.playInputClick()
-            return
-        }
-        
-        if text == "symbols" {
-            switchLayout(to: .symbols)
-            UIDevice.current.playInputClick()
-            return
-        }
+        if text == "numbers" { switchLayout(to: .numbers); return }
+        if text == "letters" { switchLayout(to: .letters); return }
+        if text == "symbols" { switchLayout(to: .symbols); return }
         
         // 1. Handle Control Commands
         if text == "space" || text == "" {
-            self.textDocumentProxy.insertText(" ")
-            UIDevice.current.playInputClick()
+            // ADDED: Double-tap spacebar for period logic
+            let now = Date().timeIntervalSince1970
+            if (now - lastSpaceTapTime) < 0.3 {
+                self.textDocumentProxy.deleteBackward()
+                self.textDocumentProxy.insertText(". ") // TODO: - Change this for other languages
+                lastSpaceTapTime = 0 // Reset to prevent triple-tap bugs
+            } else {
+                self.textDocumentProxy.insertText(" ")
+                lastSpaceTapTime = now
+            }
             return
         }
         
         if text == "return" {
             self.textDocumentProxy.insertText("\n")
-            UIDevice.current.playInputClick()
             return
         }
         
         if text == "shift" {
-            // Calculate time since last tap
             let now = Date().timeIntervalSince1970
             let timeSinceLastTap = now - lastShiftTapTime
             lastShiftTapTime = now
             
             if touchEngineView.currentShiftState == .capsLocked {
-                // If already locked, ANY tap unlocks it
                 touchEngineView.currentShiftState = .lowercased
             } else if timeSinceLastTap < 0.3 {
-                // Double tap detected (less than 0.3 seconds)! Lock it.
                 touchEngineView.currentShiftState = .capsLocked
             } else if touchEngineView.currentShiftState == .lowercased {
-                // Single tap to turn on
                 touchEngineView.currentShiftState = .uppercased
             } else {
-                // Single tap to turn off
                 touchEngineView.currentShiftState = .lowercased
             }
             return
         }
         
-        // 2. Insert the standard character (already resolved by TouchEngineView)
+        // 2. Insert the standard character
         self.textDocumentProxy.insertText(text)
         
         // 3. Auto-revert single-shift state
@@ -137,6 +180,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
     
     func deleteCharacter() {
         self.textDocumentProxy.deleteBackward()
+        // No input click here either, since startDeleteTimer handles it!
     }
     
     // --- Alternate Popover Handling ---
@@ -154,11 +198,17 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
     func insertSelectedAlternateCharacter() {
         guard let char = activeCalloutView?.getSelectedCharacter() else { return }
         self.textDocumentProxy.insertText(char)
-        UIDevice.current.playInputClick()
+        // No input click here, handled by native OS selection feedback you added
     }
     
     func hideAlternatesPopover() {
         activeCalloutView?.removeFromSuperview()
         activeCalloutView = nil
+    }
+}
+
+extension KeyboardViewController {
+    private func cacheKey(for language: String, type: KeyboardLayoutType) -> String {
+        return "\(language)_\(type)"
     }
 }
