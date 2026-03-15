@@ -66,6 +66,14 @@ class KeyboardTouchEngineView: UIView {
     
     func applyLanguageLayout(_ layout: KeyboardLayout) {
         self.currentLayout = layout
+        
+        // CRITICAL FIX: Wipe the board clean when layouts change.
+        // This forces layoutSubviews to draw fresh layers (e.g., when switching to Numbers)
+        self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
+        self.keyBackgroundLayers.removeAll()
+        self.keyTextLayers.removeAll()
+        self.activeKeys.removeAll()
+        
         self.setNeedsLayout() // Triggers layoutSubviews()
     }
     
@@ -78,55 +86,15 @@ class KeyboardTouchEngineView: UIView {
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        if #available(iOS 17.0, *) {
-            registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (view: KeyboardTouchEngineView, _) in
-                view.renderVisuals()
-            }
-        } else {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        // We only need manual observation for iOS 16 and below.
+        // iOS 17+ is already handled by setupTraitObservation() in the init.
+        if #unavailable(iOS 17.0) {
             if self.traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
                 renderVisuals()
             }
         }
-    }
-}
-
-// MARK: - Layout Math
-extension KeyboardTouchEngineView {
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        guard var layout = currentLayout, bounds.width > 0 else { return }
-        
-        let rowCount = CGFloat(layout.rows.count)
-        let totalVerticalSpacing = (rowCount - 1) * Metrics.verticalSpacing
-        let availableHeight = bounds.height - Metrics.edgeInsets.top - Metrics.edgeInsets.bottom - totalVerticalSpacing
-        let rowHeight = availableHeight / rowCount
-        
-        var currentY = Metrics.edgeInsets.top
-        
-        for rowIndex in 0..<layout.rows.count {
-            let keysInRow = layout.rows[rowIndex]
-            let keyCount = CGFloat(keysInRow.count)
-            let totalMultipliers = keysInRow.reduce(0) { $0 + $1.widthMultiplier }
-            let totalHorizontalSpacing = (keyCount - 1) * Metrics.horizontalSpacing
-            let availableWidth = bounds.width - Metrics.edgeInsets.left - Metrics.edgeInsets.right - totalHorizontalSpacing
-            let baseUnitWidth = availableWidth / totalMultipliers
-            
-            var currentX = Metrics.edgeInsets.left
-            
-            for keyIndex in 0..<keysInRow.count {
-                let key = keysInRow[keyIndex]
-                let keyWidth = baseUnitWidth * key.widthMultiplier
-                let keyFrame = CGRect(x: currentX, y: currentY, width: keyWidth, height: rowHeight)
-                layout.rows[rowIndex][keyIndex].frame = keyFrame
-                currentX += keyWidth + Metrics.horizontalSpacing
-            }
-            currentY += rowHeight + Metrics.verticalSpacing
-        }
-        
-        self.currentLayout = layout
-        renderVisuals()
     }
 }
 
@@ -289,17 +257,91 @@ extension KeyboardTouchEngineView {
     }
 }
 
+// MARK: - Layout Math
+extension KeyboardTouchEngineView {
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        // 1. BOUNDS BOUNCE GUARD:
+        // Ignore height=0 (collapsed) and height>400 (iOS full-screen initialization glitch).
+        guard var layout = currentLayout, bounds.width > 0, bounds.height > 0, bounds.height < 400 else { return }
+        
+        let rowCount = CGFloat(layout.rows.count)
+        let totalVerticalSpacing = (rowCount - 1) * Metrics.verticalSpacing
+        let availableHeight = bounds.height - Metrics.edgeInsets.top - Metrics.edgeInsets.bottom - totalVerticalSpacing
+        let rowHeight = availableHeight / rowCount
+        
+        var currentY = Metrics.edgeInsets.top
+        
+        for rowIndex in 0..<layout.rows.count {
+            let keysInRow = layout.rows[rowIndex]
+            let keyCount = CGFloat(keysInRow.count)
+            let totalMultipliers = keysInRow.reduce(0) { $0 + $1.widthMultiplier }
+            let totalHorizontalSpacing = (keyCount - 1) * Metrics.horizontalSpacing
+            let availableWidth = bounds.width - Metrics.edgeInsets.left - Metrics.edgeInsets.right - totalHorizontalSpacing
+            let baseUnitWidth = availableWidth / totalMultipliers
+            
+            var currentX = Metrics.edgeInsets.left
+            
+            for keyIndex in 0..<keysInRow.count {
+                let key = keysInRow[keyIndex]
+                let keyWidth = baseUnitWidth * key.widthMultiplier
+                let keyFrame = CGRect(x: currentX, y: currentY, width: keyWidth, height: rowHeight)
+                layout.rows[rowIndex][keyIndex].frame = keyFrame
+                currentX += keyWidth + Metrics.horizontalSpacing
+            }
+            currentY += rowHeight + Metrics.verticalSpacing
+        }
+        
+        self.currentLayout = layout
+        
+        // Update the flattened array with the newly calculated frames for accurate hit-testing
+        self.activeKeys = layout.rows.flatMap { $0 }
+        
+        // 2. PERFORMANCE FIX: Mutative Rendering
+        if keyBackgroundLayers.isEmpty {
+            renderVisuals()
+        } else {
+            updateLayerFrames()
+        }
+    }
+    
+    // Smoothly resizes existing layers (crucial for zero-lag layout updates and rotation)
+    private func updateLayerFrames() {
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        
+        for key in activeKeys {
+            guard let bgLayer = keyBackgroundLayers[key.id],
+                  let textLayer = keyTextLayers[key.id] else { continue }
+            
+            let visualFrame = key.frame.insetBy(dx: Metrics.keyVisualInset, dy: Metrics.keyVisualInset)
+            
+            // Instantly update background size
+            bgLayer.path = UIBezierPath(roundedRect: visualFrame, cornerRadius: Metrics.keyCornerRadius).cgPath
+            
+            // Instantly update text position using fast math (no OS Font requests)
+            let calculatedFontSize = key.fontSize ?? 22.0
+            let textHeight = calculatedFontSize * 1.2
+            let textY = visualFrame.origin.y + (visualFrame.height - textHeight) / 2.0
+            textLayer.frame = CGRect(x: visualFrame.origin.x, y: textY, width: visualFrame.width, height: textHeight)
+        }
+        
+        CATransaction.commit()
+    }
+}
+
 // MARK: - Visual Rendering
 extension KeyboardTouchEngineView {
     
     func renderVisuals() {
-        // Prevent layoutSubviews from trying to animate 30+ layer removals/additions
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         
         self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
         self.keyBackgroundLayers.removeAll()
-        self.keyTextLayers.removeAll() // ADD THIS
+        self.keyTextLayers.removeAll()
         self.activeKeys.removeAll()
         
         guard let layout = currentLayout else {
@@ -307,7 +349,6 @@ extension KeyboardTouchEngineView {
             return
         }
         
-        // Flatten the array once to save CPU cycles during hit-testing
         self.activeKeys = layout.rows.flatMap { $0 }
         
         for row in layout.rows {
@@ -330,14 +371,12 @@ extension KeyboardTouchEngineView {
         let isShifted = currentShiftState == .uppercased || currentShiftState == .capsLocked
         let isShiftKeyActive = keyModel.id == "shift" && isShifted
         
-        // Background Color
         if isShiftKeyActive {
             backgroundLayer.fillColor = KeyboardTheme.pressedKeyColor(isSpecial: isSpecial, isDark: isDark)
         } else {
             backgroundLayer.fillColor = KeyboardTheme.keyColor(isSpecial: isSpecial, isDark: isDark)
         }
         
-        // Shadow
         backgroundLayer.shadowColor = KeyboardTheme.shadowColor(isDark: isDark)
         backgroundLayer.shadowOpacity = 1.0
         backgroundLayer.shadowOffset = CGSize(width: 0, height: 1.0)
@@ -346,15 +385,14 @@ extension KeyboardTouchEngineView {
         self.layer.addSublayer(backgroundLayer)
         keyBackgroundLayers[keyModel.id] = backgroundLayer
         
-        // Text Layer
         let textLayer = CATextLayer()
         var displayText = keyModel.primaryLabel
         
         if keyModel.id == "shift" {
             if currentShiftState == .capsLocked || currentShiftState == .uppercased {
-                displayText = "⇪" // Caps Locked symbol
+                displayText = "⇪"
             } else {
-                displayText = "⇧" // Outline arrow for lowercase
+                displayText = "⇧"
             }
         } else if isShifted, let shiftChar = keyModel.shiftLabel {
             displayText = shiftChar
@@ -363,17 +401,16 @@ extension KeyboardTouchEngineView {
         }
         
         let calculatedFontSize = keyModel.fontSize ?? 22.0
-        let keyFont = UIFont.systemFont(ofSize: calculatedFontSize, weight: .regular)
         
+        // 3. FONT SANDBOX BYPASS: Cast directly to CoreGraphics to kill the lag
         textLayer.string = displayText
-        textLayer.font = keyFont
+        textLayer.font = "Helvetica" as CFTypeRef
         textLayer.fontSize = calculatedFontSize
         textLayer.foregroundColor = KeyboardTheme.textColor(isDark: isDark)
         textLayer.alignmentMode = .center
         textLayer.contentsScale = self.traitCollection.displayScale
         
-        // Perfect vertical centering using font metrics
-        let textHeight = keyFont.lineHeight
+        let textHeight = calculatedFontSize * 1.2
         let textY = visualFrame.origin.y + (visualFrame.height - textHeight) / 2.0
         textLayer.frame = CGRect(x: visualFrame.origin.x, y: textY, width: visualFrame.width, height: textHeight)
         
@@ -393,7 +430,6 @@ extension KeyboardTouchEngineView {
         let isShifted = currentShiftState == .uppercased || currentShiftState == .capsLocked
         let isStickyShift = key.id == "shift" && isShifted
         
-        // Keep it highlighted if it's currently being touched OR if it's a locked shift key
         if active || isStickyShift {
             layer.fillColor = KeyboardTheme.pressedKeyColor(isSpecial: isSpecial, isDark: isDark)
         } else {
@@ -404,38 +440,35 @@ extension KeyboardTouchEngineView {
     }
     
     private func updateKeyVisualsForShiftState() {
-            // This is 100x faster than renderVisuals()
-            CATransaction.begin()
-            CATransaction.setDisableActions(true)
-            
-            let isShifted = currentShiftState == .uppercased || currentShiftState == .capsLocked
-            
-            for key in activeKeys {
-                // 1. Update the letters dynamically without rebuilding the layer
-                if let textLayer = keyTextLayers[key.id] {
-                    var displayText = key.primaryLabel
-                    
-                    if key.id == "shift" {
-                        if currentShiftState == .capsLocked || currentShiftState == .uppercased {
-                            displayText = "⇪"
-                        } else {
-                            displayText = "⇧"
-                        }
-                    } else if isShifted, let shiftChar = key.shiftLabel {
-                        displayText = shiftChar
-                    } else if isShifted && key.primaryLabel.count == 1 {
-                        displayText = key.primaryLabel.uppercased()
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        
+        let isShifted = currentShiftState == .uppercased || currentShiftState == .capsLocked
+        
+        for key in activeKeys {
+            if let textLayer = keyTextLayers[key.id] {
+                var displayText = key.primaryLabel
+                
+                if key.id == "shift" {
+                    if currentShiftState == .capsLocked || currentShiftState == .uppercased {
+                        displayText = "⇪"
+                    } else {
+                        displayText = "⇧"
                     }
-                    
-                    textLayer.string = displayText
+                } else if isShifted, let shiftChar = key.shiftLabel {
+                    displayText = shiftChar
+                } else if isShifted && key.primaryLabel.count == 1 {
+                    displayText = key.primaryLabel.uppercased()
                 }
                 
-                // 2. Update the Shift key background color
-                if key.id == "shift" {
-                    highlight(key: key, active: false) // Our highlight function already knows how to check sticky shift states!
-                }
+                textLayer.string = displayText
             }
             
-            CATransaction.commit()
+            if key.id == "shift" {
+                highlight(key: key, active: false)
+            }
         }
+        
+        CATransaction.commit()
+    }
 }
