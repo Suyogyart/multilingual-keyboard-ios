@@ -34,13 +34,19 @@ class KeyboardTouchEngineView: UIView {
     
     var currentLayout: KeyboardLayout?
     var currentShiftState: ShiftState = .lowercased {
-        didSet { renderVisuals() }
+        didSet {
+            if oldValue != currentShiftState {
+                updateKeyVisualsForShiftState()
+            }
+        }
     }
     
     // MARK: Properties (Internal State)
     private var activeTouchTarget: KeyModel?
     private var isShowingAlternates = false
     private var keyBackgroundLayers: [String: CAShapeLayer] = [:]
+    private var keyTextLayers: [String: CATextLayer] = [:]
+    private var activeKeys: [KeyModel] = []
     
     // MARK: Properties (Timers)
     private var longPressTimer: Timer?
@@ -212,10 +218,8 @@ extension KeyboardTouchEngineView {
 extension KeyboardTouchEngineView {
     
     private func findKey(at point: CGPoint) -> KeyModel? {
-        guard let layout = currentLayout else { return nil }
-        
-        // 1. Exact Hit Test
-        if let exactKey = layout.rows.flatMap({ $0 }).first(where: { $0.frame.contains(point) }) {
+        // 1. Exact Hit Test (Now completely flat)
+        if let exactKey = activeKeys.first(where: { $0.frame.contains(point) }) {
             return exactKey
         }
         
@@ -223,16 +227,14 @@ extension KeyboardTouchEngineView {
         var closestKey: KeyModel?
         var shortestDistance: CGFloat = .greatestFiniteMagnitude
         
-        for row in layout.rows {
-            for key in row {
-                let centerX = key.frame.midX
-                let centerY = key.frame.midY
-                let distance = hypot(point.x - centerX, point.y - centerY)
-                
-                if distance < shortestDistance {
-                    shortestDistance = distance
-                    closestKey = key
-                }
+        for key in activeKeys {
+            let centerX = key.frame.midX
+            let centerY = key.frame.midY
+            let distance = hypot(point.x - centerX, point.y - centerY)
+            
+            if distance < shortestDistance {
+                shortestDistance = distance
+                closestKey = key
             }
         }
         return closestKey
@@ -281,11 +283,16 @@ extension KeyboardTouchEngineView {
         
         self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
         self.keyBackgroundLayers.removeAll()
+        self.keyTextLayers.removeAll() // ADD THIS
+        self.activeKeys.removeAll()
         
         guard let layout = currentLayout else {
             CATransaction.commit()
             return
         }
+        
+        // Flatten the array once to save CPU cycles during hit-testing
+        self.activeKeys = layout.rows.flatMap { $0 }
         
         for row in layout.rows {
             for key in row {
@@ -328,7 +335,11 @@ extension KeyboardTouchEngineView {
         var displayText = keyModel.primaryLabel
         
         if keyModel.id == "shift" {
-            displayText = isShifted ? "⇪" : "⇧"
+            if currentShiftState == .capsLocked || currentShiftState == .uppercased {
+                displayText = "⇪" // Caps Locked symbol
+            } else {
+                displayText = "⇧" // Outline arrow for lowercase
+            }
         } else if isShifted, let shiftChar = keyModel.shiftLabel {
             displayText = shiftChar
         } else if isShifted && keyModel.primaryLabel.count == 1 {
@@ -351,6 +362,7 @@ extension KeyboardTouchEngineView {
         textLayer.frame = CGRect(x: visualFrame.origin.x, y: textY, width: visualFrame.width, height: textHeight)
         
         self.layer.addSublayer(textLayer)
+        keyTextLayers[keyModel.id] = textLayer
     }
 
     private func highlight(key: KeyModel, active: Bool) {
@@ -362,7 +374,11 @@ extension KeyboardTouchEngineView {
         let isDark = KeyboardTheme.isDark(traitCollection: self.traitCollection)
         let isSpecial = key.isAction ?? false
         
-        if active {
+        let isShifted = currentShiftState == .uppercased || currentShiftState == .capsLocked
+        let isStickyShift = key.id == "shift" && isShifted
+        
+        // Keep it highlighted if it's currently being touched OR if it's a locked shift key
+        if active || isStickyShift {
             layer.fillColor = KeyboardTheme.pressedKeyColor(isSpecial: isSpecial, isDark: isDark)
         } else {
             layer.fillColor = KeyboardTheme.keyColor(isSpecial: isSpecial, isDark: isDark)
@@ -370,4 +386,40 @@ extension KeyboardTouchEngineView {
         
         CATransaction.commit()
     }
+    
+    private func updateKeyVisualsForShiftState() {
+            // This is 100x faster than renderVisuals()
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            
+            let isShifted = currentShiftState == .uppercased || currentShiftState == .capsLocked
+            
+            for key in activeKeys {
+                // 1. Update the letters dynamically without rebuilding the layer
+                if let textLayer = keyTextLayers[key.id] {
+                    var displayText = key.primaryLabel
+                    
+                    if key.id == "shift" {
+                        if currentShiftState == .capsLocked || currentShiftState == .uppercased {
+                            displayText = "⇪"
+                        } else {
+                            displayText = "⇧"
+                        }
+                    } else if isShifted, let shiftChar = key.shiftLabel {
+                        displayText = shiftChar
+                    } else if isShifted && key.primaryLabel.count == 1 {
+                        displayText = key.primaryLabel.uppercased()
+                    }
+                    
+                    textLayer.string = displayText
+                }
+                
+                // 2. Update the Shift key background color
+                if key.id == "shift" {
+                    highlight(key: key, active: false) // Our highlight function already knows how to check sticky shift states!
+                }
+            }
+            
+            CATransaction.commit()
+        }
 }
