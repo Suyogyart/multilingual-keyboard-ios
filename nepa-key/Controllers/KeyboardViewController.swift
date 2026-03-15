@@ -36,6 +36,15 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
         self.view = KeyboardInputView() // Assuming this is defined elsewhere in your project
     }
     
+    override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: { _ in
+            // This forces the TouchEngineView to run layoutSubviews()
+            // and consequently our new updateLayerFrames() logic.
+            self.view.layoutIfNeeded()
+        }, completion: nil)
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         applyUserHeightPreference()
@@ -126,18 +135,36 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
     private func applyUserHeightPreference() {
         let scale = CGFloat(KeyboardSettings.shared.keyboardHeightScale)
         
-        // Inside applyUserHeightPreference()
-        let contextScreenHeight: CGFloat = (self.view.window?.windowScene?.screen.bounds.height) ?? self.view.bounds.height
-        let defaultHeight: CGFloat = contextScreenHeight < 800 ? 216 : 226
-        let targetHeight = defaultHeight * scale
+        // 1. Get current orientation and device type
+        let currentBounds = self.view.window?.windowScene?.screen.bounds ?? UIScreen.main.bounds
+        let isLandscape = currentBounds.width > currentBounds.height
+        let isPhone = UIDevice.current.userInterfaceIdiom == .phone
         
-        if scale != 1.0 {
+        // 2. Use your safe height detection logic
+        let contextScreenHeight: CGFloat = currentBounds.height
+        let defaultHeight: CGFloat = contextScreenHeight < 800 ? 216 : 226
+        
+        var targetHeight: CGFloat
+        
+        // 3. LOGIC: Disable scaling for iPhone Landscape only
+        if isPhone && isLandscape {
+            // Force the standard compact landscape height (usually 160 or 170)
+            // We do NOT multiply by 'scale' here.
+            targetHeight = 160.0
+        } else {
+            // Apply user scale for Portrait (all devices) or iPad (all orientations)
+            targetHeight = defaultHeight * scale
+        }
+        
+        // 4. Update or Create Constraints
+        if scale != 1.0 || isLandscape {
             if customHeightConstraint == nil {
                 customHeightConstraint = self.view.heightAnchor.constraint(equalToConstant: targetHeight)
                 customHeightConstraint?.priority = UILayoutPriority(999)
                 customHeightConstraint?.isActive = true
             } else {
                 customHeightConstraint?.constant = targetHeight
+                customHeightConstraint?.isActive = true
             }
         } else {
             customHeightConstraint?.isActive = false

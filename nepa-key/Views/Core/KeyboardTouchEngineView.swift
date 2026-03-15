@@ -329,15 +329,22 @@ extension KeyboardTouchEngineView {
         
         for key in activeKeys {
             guard let bgLayer = keyBackgroundLayers[key.id],
-                  let label = keyLabels[key.id] else { continue } // UPDATED
+                  let label = keyLabels[key.id] else { continue }
             
             let visualFrame = key.frame.insetBy(dx: Metrics.keyVisualInset, dy: Metrics.keyVisualInset)
             
-            // Instantly update background size
+            // 1. UPDATE SHAPE PATH: This fixes the solid background and shadow position
             bgLayer.path = UIBezierPath(roundedRect: visualFrame, cornerRadius: Metrics.keyCornerRadius).cgPath
             
-            // Instantly update label frame
-            label.frame = visualFrame // UPDATED
+            // 2. UPDATE GRADIENT SUBVIEW: This fixes the misplaced gradient/liquid glass
+            if let gradient = bgLayer.sublayers?.first(where: { $0 is CAGradientLayer }) {
+                // Important: Match the frame of the gradient to the new visualFrame
+                // We use the bounding box of the path to ensure it's exact
+                gradient.frame = bgLayer.path?.boundingBoxOfPath ?? bgLayer.bounds
+            }
+            
+            // 3. UPDATE LABEL: UILabel handles its own vertical centering inside the frame
+            label.frame = visualFrame
         }
         
         CATransaction.commit()
