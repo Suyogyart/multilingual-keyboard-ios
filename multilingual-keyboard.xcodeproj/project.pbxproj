@@ -56,6 +56,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		7C3CEC422F669F910070CDCA /* Exceptions for "multilingual-keyboard" folder in "nepa-key" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Features/Settings/AppGroupDefault.swift,
+			);
+			target = 7CA88F1D2ED6279000E9BF74 /* nepa-key */;
+		};
 		7CA88F0E2ED6255500E9BF74 /* Exceptions for "multilingual-keyboard" folder in "multilingual-keyboard" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -77,6 +84,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				7CA88F0E2ED6255500E9BF74 /* Exceptions for "multilingual-keyboard" folder in "multilingual-keyboard" target */,
+				7C3CEC422F669F910070CDCA /* Exceptions for "multilingual-keyboard" folder in "nepa-key" target */,
 			);
 			path = "multilingual-keyboard";
 			sourceTree = "<group>";
@@ -384,6 +392,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "multilingual-keyboard/multilingual-keyboard.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = HHJVU2857R;
@@ -418,6 +427,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "multilingual-keyboard/multilingual-keyboard.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = HHJVU2857R;
@@ -657,6 +667,7 @@
 		7CA88F272ED6279000E9BF74 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "nepa-key/nepa-key.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = HHJVU2857R;
@@ -685,6 +696,7 @@
 		7CA88F282ED6279000E9BF74 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "nepa-key/nepa-key.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = HHJVU2857R;

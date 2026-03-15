@@ -18,6 +18,9 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
     var touchEngineView: KeyboardTouchEngineView!
     var activeCalloutView: AlternatesCalloutView?
     
+    // Keyboard settings
+    private var customHeightConstraint: NSLayoutConstraint?
+    
     // Change the cache to use a String key for unique identification
     private var layoutCache: [String: KeyboardLayout] = [:]
     
@@ -31,6 +34,11 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
     
     override func loadView() {
         self.view = KeyboardInputView() // Assuming this is defined elsewhere in your project
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        applyUserHeightPreference()
     }
     
     override func viewDidLoad() {
@@ -50,6 +58,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
         
         // 4. Start loading Numbers and Symbols in the background
         prewarmLayouts(for: currentLanguageCode)
+        
     }
     
     private func setupTouchEngine() {
@@ -111,6 +120,28 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
         } else {
             // 2. Trigger fallback load (In case they tap before prewarm finishes)
             prewarmLayouts(for: currentLanguageCode)
+        }
+    }
+    
+    private func applyUserHeightPreference() {
+        let scale = CGFloat(KeyboardSettings.shared.keyboardHeightScale)
+        
+        // Inside applyUserHeightPreference()
+        let contextScreenHeight: CGFloat = (self.view.window?.windowScene?.screen.bounds.height) ?? self.view.bounds.height
+        let defaultHeight: CGFloat = contextScreenHeight < 800 ? 216 : 226
+        let targetHeight = defaultHeight * scale
+        
+        if scale != 1.0 {
+            if customHeightConstraint == nil {
+                customHeightConstraint = self.view.heightAnchor.constraint(equalToConstant: targetHeight)
+                customHeightConstraint?.priority = UILayoutPriority(999)
+                customHeightConstraint?.isActive = true
+            } else {
+                customHeightConstraint?.constant = targetHeight
+            }
+        } else {
+            customHeightConstraint?.isActive = false
+            customHeightConstraint = nil
         }
     }
     

@@ -27,7 +27,11 @@ import AudioToolbox
 class HapticEngine {
     static let shared = HapticEngine()
     
-    var isEnabled: Bool = false
+    var isEnabled: Bool {
+        return KeyboardSettings.shared.enableHaptics
+    }
+    
+    private init() {}
     
     // 1519 ("peek") is the lightest available tap and matches
     // the feel of Apple's native keyboard most closely.

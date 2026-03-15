@@ -109,10 +109,14 @@ extension KeyboardTouchEngineView {
             activeTouchTarget = key
             highlight(key: key, active: true)
             
-            // Haptics & Audio
+            // Play Haptics
             let specialKeyIDs = ["space", "return", "shift", "delete", "numbers", "letters", "symbols", "globe"]
             HapticEngine.shared.playTap(isSpecialKey: specialKeyIDs.contains(key.id))
-            UIDevice.current.playInputClick()
+            
+            // Play Sounds only if enabled
+            if KeyboardSettings.shared.enableSounds {
+                UIDevice.current.playInputClick()
+            }
             
             if key.id == "delete" {
                 delegate?.deleteCharacter()
@@ -225,7 +229,18 @@ extension KeyboardTouchEngineView {
     }
     
     private func startLongPressTimer(for key: KeyModel) {
-        longPressTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { [weak self] _ in
+        longPressTimer?.invalidate()
+        
+        let delay = KeyboardSettings.shared.longPressDelay
+        
+        longPressTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) { [weak self] _ in
+            
+            // Trigger haptic feedback when the popup appears to let the user know
+            if KeyboardSettings.shared.enableHaptics {
+                let generator = UIImpactFeedbackGenerator(style: .heavy)
+                generator.impactOccurred()
+            }
+            
             self?.isShowingAlternates = true
             self?.delegate?.showAlternatesPopover(for: key)
         }
