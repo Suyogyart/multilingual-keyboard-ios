@@ -22,7 +22,7 @@ class AlternatesCalloutView: UIView {
     // Visual Layers
     private var backgroundLayer = CAShapeLayer()
     private var highlightLayer = CAShapeLayer()
-    private var textLayers: [CATextLayer] = []
+    private var textLabels: [UILabel] = []
     
     init(alternates: [String], baseKeyFrame: CGRect, keyboardBounds: CGRect) {
         self.alternates = alternates
@@ -82,15 +82,13 @@ class AlternatesCalloutView: UIView {
     private func updateTheme() {
         let isDark = KeyboardTheme.isDark(traitCollection: self.traitCollection)
         
-        // Match the background to standard keys, but elevated
         backgroundLayer.fillColor = KeyboardTheme.keyColor(isSpecial: false, isDark: isDark)
         backgroundLayer.shadowColor = KeyboardTheme.shadowColor(isDark: isDark)
         
-        // Update all text layers
         let standardTextColor = KeyboardTheme.textColor(isDark: isDark)
-        for (index, textLayer) in textLayers.enumerated() {
-            // Keep the highlighted text white (since the highlight bubble is blue)
-            textLayer.foregroundColor = (index == highlightedIndex) ? UIColor.white.cgColor : standardTextColor
+        // UPDATED to use UILabels and UIColor
+        for (index, label) in textLabels.enumerated() {
+            label.textColor = (index == highlightedIndex) ? .white : UIColor(cgColor: standardTextColor)
         }
     }
     
@@ -126,22 +124,14 @@ class AlternatesCalloutView: UIView {
                                    width: slotWidth,
                                    height: slotHeight)
             
-            let textLayer = CATextLayer()
-            textLayer.string = altChar
-            textLayer.font = UIFont.systemFont(ofSize: 24, weight: .regular)
-            textLayer.fontSize = 24
-            textLayer.alignmentMode = .center
-            textLayer.contentsScale = self.traitCollection.displayScale
+            let label = UILabel(frame: charFrame)
+            label.text = altChar
+            label.font = UIFont.systemFont(ofSize: 22, weight: .regular)
+            label.textAlignment = .center
+            label.textColor = UIColor(cgColor: standardTextColor)
             
-            // Vertically center the text within its slot
-            let fontHeight = UIFont.systemFont(ofSize: 24).lineHeight
-            let textY = charFrame.origin.y + (charFrame.height - fontHeight) / 2.0
-            textLayer.frame = CGRect(x: charFrame.origin.x, y: textY, width: charFrame.width, height: fontHeight)
-            
-            textLayer.foregroundColor = standardTextColor
-            
-            self.layer.addSublayer(textLayer)
-            textLayers.append(textLayer)
+            self.addSubview(label)
+            textLabels.append(label)
         }
         
         // Highlight the default first item
@@ -181,8 +171,8 @@ class AlternatesCalloutView: UIView {
         
         // 1. Revert old highlighted text to normal color
         let isDark = KeyboardTheme.isDark(traitCollection: self.traitCollection)
-        if highlightedIndex >= 0 && highlightedIndex < textLayers.count {
-            textLayers[highlightedIndex].foregroundColor = KeyboardTheme.textColor(isDark: isDark)
+        if highlightedIndex >= 0 && highlightedIndex < textLabels.count {
+            textLabels[highlightedIndex].textColor = UIColor(cgColor: KeyboardTheme.textColor(isDark: isDark))
         }
         
         // 2. Update new index
@@ -199,8 +189,7 @@ class AlternatesCalloutView: UIView {
         
         highlightLayer.path = UIBezierPath(roundedRect: highlightRect, cornerRadius: 6.0).cgPath
         
-        // 4. Change new highlighted text to white so it contrasts the blue background
-        textLayers[highlightedIndex].foregroundColor = UIColor.white.cgColor
+        textLabels[highlightedIndex].textColor = .white
         
         CATransaction.commit()
     }

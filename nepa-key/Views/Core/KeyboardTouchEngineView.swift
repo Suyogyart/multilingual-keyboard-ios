@@ -45,7 +45,7 @@ class KeyboardTouchEngineView: UIView {
     private var activeTouchTarget: KeyModel?
     private var isShowingAlternates = false
     private var keyBackgroundLayers: [String: CAShapeLayer] = [:]
-    private var keyTextLayers: [String: CATextLayer] = [:]
+    private var keyLabels: [String: UILabel] = [:]
     private var activeKeys: [KeyModel] = []
     
     // MARK: Properties (Timers)
@@ -71,7 +71,7 @@ class KeyboardTouchEngineView: UIView {
         // This forces layoutSubviews to draw fresh layers (e.g., when switching to Numbers)
         self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
         self.keyBackgroundLayers.removeAll()
-        self.keyTextLayers.removeAll()
+        self.keyLabels.removeAll()
         self.activeKeys.removeAll()
         
         self.setNeedsLayout() // Triggers layoutSubviews()
@@ -314,18 +314,15 @@ extension KeyboardTouchEngineView {
         
         for key in activeKeys {
             guard let bgLayer = keyBackgroundLayers[key.id],
-                  let textLayer = keyTextLayers[key.id] else { continue }
+                  let label = keyLabels[key.id] else { continue } // UPDATED
             
             let visualFrame = key.frame.insetBy(dx: Metrics.keyVisualInset, dy: Metrics.keyVisualInset)
             
             // Instantly update background size
             bgLayer.path = UIBezierPath(roundedRect: visualFrame, cornerRadius: Metrics.keyCornerRadius).cgPath
             
-            // Instantly update text position using fast math (no OS Font requests)
-            let calculatedFontSize = key.fontSize ?? 22.0
-            let textHeight = calculatedFontSize * 1.2
-            let textY = visualFrame.origin.y + (visualFrame.height - textHeight) / 2.0
-            textLayer.frame = CGRect(x: visualFrame.origin.x, y: textY, width: visualFrame.width, height: textHeight)
+            // Instantly update label frame
+            label.frame = visualFrame // UPDATED
         }
         
         CATransaction.commit()
@@ -340,8 +337,9 @@ extension KeyboardTouchEngineView {
         CATransaction.setDisableActions(true)
         
         self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
+        self.keyLabels.values.forEach { $0.removeFromSuperview() }
         self.keyBackgroundLayers.removeAll()
-        self.keyTextLayers.removeAll()
+        self.keyLabels.removeAll()
         self.activeKeys.removeAll()
         
         guard let layout = currentLayout else {
@@ -369,13 +367,8 @@ extension KeyboardTouchEngineView {
         let isDark = KeyboardTheme.isDark(traitCollection: self.traitCollection)
         let isSpecial = keyModel.isAction ?? false
         let isShifted = currentShiftState == .uppercased || currentShiftState == .capsLocked
-        let isShiftKeyActive = keyModel.id == "shift" && isShifted
         
-        if isShiftKeyActive {
-            backgroundLayer.fillColor = KeyboardTheme.pressedKeyColor(isSpecial: isSpecial, isDark: isDark)
-        } else {
-            backgroundLayer.fillColor = KeyboardTheme.keyColor(isSpecial: isSpecial, isDark: isDark)
-        }
+        backgroundLayer.fillColor = KeyboardTheme.keyColor(isSpecial: isSpecial, isDark: isDark)
         
         backgroundLayer.shadowColor = KeyboardTheme.shadowColor(isDark: isDark)
         backgroundLayer.shadowOpacity = 1.0
@@ -385,7 +378,7 @@ extension KeyboardTouchEngineView {
         self.layer.addSublayer(backgroundLayer)
         keyBackgroundLayers[keyModel.id] = backgroundLayer
         
-        let textLayer = CATextLayer()
+        let label = UILabel()
         var displayText = keyModel.primaryLabel
         
         if keyModel.id == "shift" {
@@ -402,20 +395,14 @@ extension KeyboardTouchEngineView {
         
         let calculatedFontSize = keyModel.fontSize ?? 22.0
         
-        // 3. FONT SANDBOX BYPASS: Cast directly to CoreGraphics to kill the lag
-        textLayer.string = displayText
-        textLayer.font = "Helvetica" as CFTypeRef
-        textLayer.fontSize = calculatedFontSize
-        textLayer.foregroundColor = KeyboardTheme.textColor(isDark: isDark)
-        textLayer.alignmentMode = .center
-        textLayer.contentsScale = self.traitCollection.displayScale
+        label.text = displayText
+        label.font = UIFont.systemFont(ofSize: calculatedFontSize, weight: .regular)
+        label.textColor = UIColor(cgColor: KeyboardTheme.textColor(isDark: isDark))
+        label.textAlignment = .center
+        label.frame = visualFrame // UILabel vertically centers automatically!
         
-        let textHeight = calculatedFontSize * 1.2
-        let textY = visualFrame.origin.y + (visualFrame.height - textHeight) / 2.0
-        textLayer.frame = CGRect(x: visualFrame.origin.x, y: textY, width: visualFrame.width, height: textHeight)
-        
-        self.layer.addSublayer(textLayer)
-        keyTextLayers[keyModel.id] = textLayer
+        self.addSubview(label)
+        keyLabels[keyModel.id] = label
     }
 
     private func highlight(key: KeyModel, active: Bool) {
@@ -427,10 +414,7 @@ extension KeyboardTouchEngineView {
         let isDark = KeyboardTheme.isDark(traitCollection: self.traitCollection)
         let isSpecial = key.isAction ?? false
         
-        let isShifted = currentShiftState == .uppercased || currentShiftState == .capsLocked
-        let isStickyShift = key.id == "shift" && isShifted
-        
-        if active || isStickyShift {
+        if active {
             layer.fillColor = KeyboardTheme.pressedKeyColor(isSpecial: isSpecial, isDark: isDark)
         } else {
             layer.fillColor = KeyboardTheme.keyColor(isSpecial: isSpecial, isDark: isDark)
@@ -446,7 +430,8 @@ extension KeyboardTouchEngineView {
         let isShifted = currentShiftState == .uppercased || currentShiftState == .capsLocked
         
         for key in activeKeys {
-            if let textLayer = keyTextLayers[key.id] {
+            // UPDATED: Check keyLabels instead of keyTextLayers
+            if let label = keyLabels[key.id] {
                 var displayText = key.primaryLabel
                 
                 if key.id == "shift" {
@@ -461,7 +446,7 @@ extension KeyboardTouchEngineView {
                     displayText = key.primaryLabel.uppercased()
                 }
                 
-                textLayer.string = displayText
+                label.text = displayText // UPDATED
             }
             
             if key.id == "shift" {
