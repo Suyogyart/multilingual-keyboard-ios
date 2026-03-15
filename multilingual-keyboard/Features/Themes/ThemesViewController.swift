@@ -27,6 +27,9 @@ class ThemesViewController: UIViewController {
         let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tap.cancelsTouchesInView = false
         view.addGestureRecognizer(tap)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     @objc private func dismissKeyboard() {
@@ -63,6 +66,24 @@ class ThemesViewController: UIViewController {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            let contentInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
+            tableView.contentInset = contentInsets
+            tableView.scrollIndicatorInsets = contentInsets
+            
+            // Optionally scroll to the selected theme so it's not buried
+            if let selectedPath = tableView.indexPathForSelectedRow {
+                tableView.scrollToRow(at: selectedPath, at: .middle, animated: true)
+            }
+        }
+    }
+
+    @objc func keyboardWillHide(notification: NSNotification) {
+        tableView.contentInset = .zero
+        tableView.scrollIndicatorInsets = .zero
+    }
 }
 
 extension ThemesViewController: UITableViewDelegate, UITableViewDataSource {
@@ -96,13 +117,12 @@ extension ThemesViewController: UITableViewDelegate, UITableViewDataSource {
         // Update checkmarks
         tableView.reloadData()
         
-        // Provide the same "Dismiss and Reload" UX as the height slider
-        if testTextField.isFirstResponder {
-            testTextField.resignFirstResponder()
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
-                self?.testTextField.becomeFirstResponder()
-            }
+        // Always trigger a fresh reload of the keyboard
+        testTextField.resignFirstResponder()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            self?.testTextField.becomeFirstResponder()
         }
     }
+    
 }

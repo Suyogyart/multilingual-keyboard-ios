@@ -17,6 +17,9 @@ class SettingsViewController: UIViewController {
         let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tap.cancelsTouchesInView = false
         view.addGestureRecognizer(tap)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     @objc private func dismissKeyboard() {
@@ -206,5 +209,23 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
         } else {
             KeyboardSettings.shared.enableHaptics = sender.isOn
         }
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            let contentInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
+            tableView.contentInset = contentInsets
+            tableView.scrollIndicatorInsets = contentInsets
+            
+            // Optionally scroll to the selected theme so it's not buried
+            if let selectedPath = tableView.indexPathForSelectedRow {
+                tableView.scrollToRow(at: selectedPath, at: .middle, animated: true)
+            }
+        }
+    }
+
+    @objc func keyboardWillHide(notification: NSNotification) {
+        tableView.contentInset = .zero
+        tableView.scrollIndicatorInsets = .zero
     }
 }

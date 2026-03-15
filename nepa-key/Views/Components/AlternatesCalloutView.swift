@@ -64,7 +64,7 @@ class AlternatesCalloutView: UIView {
     
     private func setupTraitObservation() {
         if #available(iOS 17.0, *) {
-            registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (view: AlternatesCalloutView, previousTrait) in
+            registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (view: AlternatesCalloutView, _) in
                 view.updateTheme()
             }
         }
@@ -80,41 +80,66 @@ class AlternatesCalloutView: UIView {
     }
     
     private func updateTheme() {
-        let isDark = KeyboardTheme.isDark(traitCollection: self.traitCollection)
+        let colors = ThemeManager.current()
         
-        backgroundLayer.fillColor = KeyboardTheme.keyColor(isSpecial: false, isDark: isDark)
-        backgroundLayer.shadowColor = KeyboardTheme.shadowColor(isDark: isDark)
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
         
-        let standardTextColor = KeyboardTheme.textColor(isDark: isDark)
-        // UPDATED to use UILabels and UIColor
-        for (index, label) in textLabels.enumerated() {
-            label.textColor = (index == highlightedIndex) ? .white : UIColor(cgColor: standardTextColor)
+        // Update background
+        backgroundLayer.fillColor = colors.keyboardBackground.cgColor
+        backgroundLayer.shadowColor = colors.shadowColor.cgColor
+        
+        // Handle Gradients / Liquid Glass in bubble
+        backgroundLayer.sublayers?.filter { $0 is CAGradientLayer }.forEach { $0.removeFromSuperlayer() }
+        
+        if let gradColors = colors.gradientColors {
+            let gradient = CAGradientLayer()
+            gradient.frame = backgroundLayer.path?.boundingBoxOfPath ?? backgroundLayer.bounds
+            gradient.colors = gradColors.map { $0.cgColor }
+            gradient.cornerRadius = 8.0
+            
+            if colors.isLiquidGlass {
+                backgroundLayer.borderWidth = 0.5
+                backgroundLayer.borderColor = UIColor(white: 1.0, alpha: 0.3).cgColor
+            } else {
+                backgroundLayer.borderWidth = 0
+            }
+            backgroundLayer.insertSublayer(gradient, at: 0)
+        } else {
+            backgroundLayer.fillColor = colors.keyBackground.cgColor
+            backgroundLayer.borderWidth = 0
         }
+        
+        // Update Labels
+        for (index, label) in textLabels.enumerated() {
+            if index == highlightedIndex {
+                label.textColor = colors.isLiquidGlass ? .white : colors.specialKeyBackground
+            } else {
+                label.textColor = colors.textColor
+            }
+        }
+        
+        // Update Highlight color
+        highlightLayer.fillColor = colors.textColor.withAlphaComponent(0.2).cgColor
+        
+        CATransaction.commit()
     }
     
     // MARK: - Visual Setup
     
     private func setupVisuals() {
-        let isDark = KeyboardTheme.isDark(traitCollection: self.traitCollection)
-        
         // 1. Draw the Main Bubble Background
         backgroundLayer.path = UIBezierPath(roundedRect: bounds, cornerRadius: 8.0).cgPath
-        backgroundLayer.fillColor = KeyboardTheme.keyColor(isSpecial: false, isDark: isDark)
         
-        backgroundLayer.shadowColor = KeyboardTheme.shadowColor(isDark: isDark)
         backgroundLayer.shadowOpacity = 0.3
         backgroundLayer.shadowOffset = CGSize(width: 0, height: 4.0)
         backgroundLayer.shadowRadius = 8.0
         self.layer.addSublayer(backgroundLayer)
         
-        // 2. Draw the Blue Highlight Layer (Hidden initially, or set to index 0)
-        highlightLayer.fillColor = UIColor.systemBlue.cgColor
-        highlightLayer.cornerRadius = 6.0
+        // 2. Draw the Highlight Layer
         self.layer.addSublayer(highlightLayer)
         
-        // 3. Draw the Grid of Text Layers
-        let standardTextColor = KeyboardTheme.textColor(isDark: isDark)
-        
+        // 3. Draw the Grid of Labels
         for (index, altChar) in alternates.enumerated() {
             let row = index / columns
             let col = index % columns
@@ -128,11 +153,13 @@ class AlternatesCalloutView: UIView {
             label.text = altChar
             label.font = UIFont.systemFont(ofSize: 22, weight: .regular)
             label.textAlignment = .center
-            label.textColor = UIColor(cgColor: standardTextColor)
             
             self.addSubview(label)
             textLabels.append(label)
         }
+        
+        // Initial theme application
+        updateTheme()
         
         // Highlight the default first item
         updateHighlight(to: 0)
@@ -141,21 +168,16 @@ class AlternatesCalloutView: UIView {
     // MARK: - Interaction
     
     func handlePan(touchPointInKeyboard: CGPoint) {
-        // Convert the touch point from the main keyboard view into our local grid coordinates
         let localPoint = self.convert(touchPointInKeyboard, from: self.superview)
         
-        // Calculate which row and column the finger is currently hovering over
         var col = Int(localPoint.x / slotWidth)
         var row = Int(localPoint.y / slotHeight)
         
-        // Clamp to prevent out-of-bounds crashing if they drag wildly outside the bubble
         col = max(0, min(col, columns - 1))
         row = max(0, min(row, rows - 1))
         
         var newIndex = (row * columns) + col
         
-        // Safety check: if the last row isn't completely full, clamping to the last column
-        // might give an index that doesn't exist in the array.
         if newIndex >= alternates.count {
             newIndex = alternates.count - 1
         }
@@ -164,32 +186,33 @@ class AlternatesCalloutView: UIView {
     }
     
     private func updateHighlight(to index: Int) {
-        guard index != highlightedIndex, index >= 0, index < alternates.count else { return }
+        guard index >= 0, index < alternates.count else { return }
         
-        CATransaction.begin()
-        CATransaction.setDisableActions(true) // Instant snap, no animations
-        
-        // 1. Revert old highlighted text to normal color
-        let isDark = KeyboardTheme.isDark(traitCollection: self.traitCollection)
-        if highlightedIndex >= 0 && highlightedIndex < textLabels.count {
-            textLabels[highlightedIndex].textColor = UIColor(cgColor: KeyboardTheme.textColor(isDark: isDark))
-        }
-        
-        // 2. Update new index
+        let colors = ThemeManager.current()
+        let oldIndex = highlightedIndex
         highlightedIndex = index
         
-        // 3. Move the blue highlight layer to the new slot
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        
+        // Revert old label
+        if oldIndex < textLabels.count {
+            textLabels[oldIndex].textColor = colors.textColor
+        }
+        
+        // Highlight new label
+        textLabels[highlightedIndex].textColor = colors.isLiquidGlass ? .white : colors.specialKeyBackground
+        
+        // Move the highlight rectangle
         let row = index / columns
         let col = index % columns
-        
         let highlightRect = CGRect(x: CGFloat(col) * slotWidth,
                                    y: CGFloat(row) * slotHeight,
                                    width: slotWidth,
-                                   height: slotHeight).insetBy(dx: 4, dy: 4) // Slight inset for padding
+                                   height: slotHeight).insetBy(dx: 4, dy: 4)
         
         highlightLayer.path = UIBezierPath(roundedRect: highlightRect, cornerRadius: 6.0).cgPath
-        
-        textLabels[highlightedIndex].textColor = .white
+        highlightLayer.fillColor = colors.textColor.withAlphaComponent(0.2).cgColor
         
         CATransaction.commit()
     }

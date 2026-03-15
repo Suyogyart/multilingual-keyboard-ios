@@ -34,7 +34,7 @@ class ThemeManager {
                 textColor: .black,
                 shadowColor: .clear
             )
-        case .redGradient:
+        case .red:
             return ThemeColors(
                 keyboardBackground: UIColor(red: 0.4, green: 0.0, blue: 0.1, alpha: 1.0),
                 keyBackground: UIColor(red: 0.8, green: 0.2, blue: 0.3, alpha: 1.0),
@@ -42,13 +42,35 @@ class ThemeManager {
                 textColor: .white,
                 shadowColor: UIColor.black.withAlphaComponent(0.3)
             )
-        case .blueGradient:
+        case .blue:
             return ThemeColors(
                 keyboardBackground: UIColor(red: 0.05, green: 0.15, blue: 0.3, alpha: 1.0),
                 keyBackground: UIColor(red: 0.2, green: 0.4, blue: 0.7, alpha: 1.0),
                 specialKeyBackground: UIColor(red: 0.0, green: 0.1, blue: 0.2, alpha: 1.0),
                 textColor: .white,
                 shadowColor: UIColor.black.withAlphaComponent(0.3)
+            )
+            
+        case .redGradient:
+            return ThemeColors(
+                keyboardBackground: UIColor(white: 0.1, alpha: 1.0),
+                keyBackground: .clear, // Transparent to show gradient below
+                specialKeyBackground: UIColor(white: 1.0, alpha: 0.1),
+                textColor: .white,
+                shadowColor: .clear,
+                gradientColors: [UIColor.systemRed, UIColor.systemOrange],
+                isLiquidGlass: false
+            )
+
+        case .liquidGlass:
+            return ThemeColors(
+                keyboardBackground: UIColor(white: 0.2, alpha: 1.0),
+                keyBackground: UIColor(white: 1.0, alpha: 0.2), // Frosted look
+                specialKeyBackground: UIColor(white: 1.0, alpha: 0.1),
+                textColor: .white,
+                shadowColor: .black.withAlphaComponent(0.2),
+                gradientColors: [UIColor(white: 1.0, alpha: 0.3), UIColor(white: 1.0, alpha: 0.05)],
+                isLiquidGlass: true
             )
         case .system:
             return isDark ? darkTheme() : lightTheme()

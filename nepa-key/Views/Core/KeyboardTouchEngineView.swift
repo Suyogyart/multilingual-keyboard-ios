@@ -381,13 +381,14 @@ extension KeyboardTouchEngineView {
         
         backgroundLayer.path = UIBezierPath(roundedRect: visualFrame, cornerRadius: Metrics.keyCornerRadius).cgPath
         
-        let isDark = KeyboardTheme.isDark(traitCollection: self.traitCollection)
+        let colors = ThemeManager.current() // Get current theme colors
         let isSpecial = keyModel.isAction ?? false
         let isShifted = currentShiftState == .uppercased || currentShiftState == .capsLocked
         
-        backgroundLayer.fillColor = KeyboardTheme.keyColor(isSpecial: isSpecial, isDark: isDark)
+        let baseColor = isSpecial ? colors.specialKeyBackground : colors.keyBackground
+        backgroundLayer.fillColor = baseColor.withAlphaComponent(0.5).cgColor
         
-        backgroundLayer.shadowColor = KeyboardTheme.shadowColor(isDark: isDark)
+        backgroundLayer.shadowColor = colors.shadowColor.cgColor
         backgroundLayer.shadowOpacity = 1.0
         backgroundLayer.shadowOffset = CGSize(width: 0, height: 1.0)
         backgroundLayer.shadowRadius = 0.0
@@ -414,7 +415,7 @@ extension KeyboardTouchEngineView {
         
         label.text = displayText
         label.font = UIFont.systemFont(ofSize: calculatedFontSize, weight: .regular)
-        label.textColor = UIColor(cgColor: KeyboardTheme.textColor(isDark: isDark))
+        label.textColor = colors.textColor
         label.textAlignment = .center
         label.frame = visualFrame // UILabel vertically centers automatically!
         
@@ -423,24 +424,42 @@ extension KeyboardTouchEngineView {
     }
 
     private func highlight(key: KeyModel, active: Bool) {
-        guard let layer = keyBackgroundLayers[key.id] else { return }
+        guard let bgLayer = keyBackgroundLayers[key.id] else { return }
         
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         
-        let isDark = KeyboardTheme.isDark(traitCollection: self.traitCollection)
+        let colors = ThemeManager.current()
         let isSpecial = key.isAction ?? false
         
+        // Check if this key is currently using a Gradient sublayer
+        let gradientLayer = bgLayer.sublayers?.first(where: { $0 is CAGradientLayer })
+        
         if active {
-            layer.fillColor = KeyboardTheme.pressedKeyColor(isSpecial: isSpecial, isDark: isDark)
+            if let grad = gradientLayer {
+                // Dim the gradient to 60% to show it's pressed
+                grad.opacity = 0.6
+            } else {
+                // Solid color fallback
+                let baseColor = isSpecial ? colors.specialKeyBackground : colors.keyBackground
+                bgLayer.fillColor = baseColor.withAlphaComponent(0.5).cgColor
+            }
         } else {
-            layer.fillColor = KeyboardTheme.keyColor(isSpecial: isSpecial, isDark: isDark)
+            if let grad = gradientLayer {
+                // Restore gradient opacity
+                grad.opacity = 1.0
+            } else {
+                // Revert solid color
+                bgLayer.fillColor = isSpecial ? colors.specialKeyBackground.cgColor : colors.keyBackground.cgColor
+            }
         }
         
         CATransaction.commit()
     }
     
     private func updateKeyVisualsForShiftState() {
+        let colors = ThemeManager.current() // Get current theme colors
+        
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         
@@ -463,7 +482,8 @@ extension KeyboardTouchEngineView {
                     displayText = key.primaryLabel.uppercased()
                 }
                 
-                label.text = displayText // UPDATED
+                label.text = displayText
+                label.textColor = colors.textColor
             }
             
             if key.id == "shift" {
@@ -478,20 +498,43 @@ extension KeyboardTouchEngineView {
 extension KeyboardTouchEngineView {
     func applyTheme() {
         let colors = ThemeManager.current()
-        self.backgroundColor = colors.keyboardBackground
+        
+//        self.backgroundColor = colors.keyboardBackground
+        self.backgroundColor = .clear
         
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         
         for key in activeKeys {
-            if let bgLayer = keyBackgroundLayers[key.id], let label = keyLabels[key.id] {
-                let isSpecial = key.isAction ?? false
-                bgLayer.fillColor = isSpecial ? colors.specialKeyBackground.cgColor : colors.keyBackground.cgColor
-                bgLayer.shadowColor = colors.shadowColor.cgColor
-                label.textColor = colors.textColor
+            guard let bgLayer = keyBackgroundLayers[key.id], let label = keyLabels[key.id] else { continue }
+            
+            // Remove old gradients if switching to solid
+            bgLayer.sublayers?.filter { $0 is CAGradientLayer }.forEach { $0.removeFromSuperlayer() }
+            
+            if let gradColors = colors.gradientColors {
+                let gradient = CAGradientLayer()
+                
+                // Ensure the gradient fits the VISUAL path, not just the layer bounds
+                gradient.frame = bgLayer.path?.boundingBoxOfPath ?? layer.bounds
+                
+                gradient.colors = gradColors.map { $0.cgColor }
+                gradient.cornerRadius = Metrics.keyCornerRadius
+                
+                if colors.isLiquidGlass {
+                    gradient.locations = [0.0, 0.5] // Creates that "half-filled" liquid look
+                    bgLayer.borderWidth = 0.5
+                    bgLayer.borderColor = UIColor(white: 1.0, alpha: 0.3).cgColor
+                }
+                
+                bgLayer.insertSublayer(gradient, at: 0)
+                bgLayer.fillColor = UIColor.clear.cgColor
+            } else {
+                bgLayer.fillColor = key.isAction == true ? colors.specialKeyBackground.cgColor : colors.keyBackground.cgColor
+                bgLayer.borderWidth = 0
             }
+            
+            label.textColor = colors.textColor
         }
-        
         CATransaction.commit()
     }
 }
