@@ -37,3 +37,23 @@ struct KeyboardTheme {
         return isDark ? UIColor.black.cgColor : UIColor(red: 137/255, green: 138/255, blue: 141/255, alpha: 1.0).cgColor
     }
 }
+
+enum ThemeType: String, CaseIterable {
+    case system = "Default"
+    case light = "Light"
+    case dark = "Dark"
+    case fossil = "Dark Fossil"
+    case highContrast = "High Contrast"
+    case redGradient = "Sunset Red"
+    case blueGradient = "Ocean Blue"
+    
+    var displayName: String { self.rawValue }
+}
+
+struct ThemeColors {
+    let keyboardBackground: UIColor
+    let keyBackground: UIColor
+    let specialKeyBackground: UIColor
+    let textColor: UIColor
+    let shadowColor: UIColor
+}

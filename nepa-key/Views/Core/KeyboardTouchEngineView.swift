@@ -370,6 +370,8 @@ extension KeyboardTouchEngineView {
             }
         }
         
+        applyTheme()
+        
         CATransaction.commit()
     }
     
@@ -466,6 +468,27 @@ extension KeyboardTouchEngineView {
             
             if key.id == "shift" {
                 highlight(key: key, active: false)
+            }
+        }
+        
+        CATransaction.commit()
+    }
+}
+
+extension KeyboardTouchEngineView {
+    func applyTheme() {
+        let colors = ThemeManager.current()
+        self.backgroundColor = colors.keyboardBackground
+        
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        
+        for key in activeKeys {
+            if let bgLayer = keyBackgroundLayers[key.id], let label = keyLabels[key.id] {
+                let isSpecial = key.isAction ?? false
+                bgLayer.fillColor = isSpecial ? colors.specialKeyBackground.cgColor : colors.keyBackground.cgColor
+                bgLayer.shadowColor = colors.shadowColor.cgColor
+                label.textColor = colors.textColor
             }
         }
         

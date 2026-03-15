@@ -63,6 +63,14 @@
 			);
 			target = 7CA88F1D2ED6279000E9BF74 /* nepa-key */;
 		};
+		7C3CEC482F66B1A50070CDCA /* Exceptions for "nepa-key" folder in "multilingual-keyboard" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Models/KeyboardSettings.swift,
+				Models/KeyboardTheme.swift,
+			);
+			target = 7CA88EE52ED6255400E9BF74 /* multilingual-keyboard */;
+		};
 		7CA88F0E2ED6255500E9BF74 /* Exceptions for "multilingual-keyboard" folder in "multilingual-keyboard" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -102,6 +110,7 @@
 		7CA88F1F2ED6279000E9BF74 /* nepa-key */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				7C3CEC482F66B1A50070CDCA /* Exceptions for "nepa-key" folder in "multilingual-keyboard" target */,
 				7CA88F292ED6279000E9BF74 /* Exceptions for "nepa-key" folder in "nepa-key" target */,
 			);
 			path = "nepa-key";
