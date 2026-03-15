@@ -37,13 +37,6 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
         super.viewDidLoad()
         self.view.backgroundColor = .clear
         
-        // 1. ADDED: Instant Native Backdrop (Frosted Glass)
-        let blurEffect = UIBlurEffect(style: traitCollection.userInterfaceStyle == .dark ? .dark : .light)
-        let blurView = UIVisualEffectView(effect: blurEffect)
-        blurView.frame = self.view.bounds
-        blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        self.view.insertSubview(blurView, at: 0)
-        
         setupTouchEngine()
         
         // 2. Instant Static Load (Zero Lag)

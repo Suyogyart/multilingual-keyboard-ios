@@ -199,9 +199,16 @@ extension KeyboardTouchEngineView {
             }
         }
         
-        if let key = activeTouchTarget {
-            highlight(key: key, active: false)
+        // --- THE EDGE-TAP FIX ---
+        if let keyToUnhighlight = activeTouchTarget {
+            // Delay the turn-off by 50ms (3 frames). This forces the GPU to
+            // draw the 'pressed' state even when iOS clumps edge touches together.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+                self?.highlight(key: keyToUnhighlight, active: false)
+            }
         }
+        // ------------------------
+        
         activeTouchTarget = nil
     }
 
@@ -209,6 +216,15 @@ extension KeyboardTouchEngineView {
         longPressTimer?.invalidate()
         stopDeleteTimer()
         isShowingAlternates = false
+        
+        // --- THE EDGE-TAP FIX ---
+        if let keyToUnhighlight = activeTouchTarget {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+                self?.highlight(key: keyToUnhighlight, active: false)
+            }
+        }
+        // ------------------------
+        
         activeTouchTarget = nil
         delegate?.hideAlternatesPopover()
     }
