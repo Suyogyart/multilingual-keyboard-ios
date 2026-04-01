@@ -56,7 +56,7 @@ struct KeyboardLayout: Decodable {
             // ROW 4
             [
                 KeyModel(id: "numbers", primaryLabel: "123", shiftLabel: nil, fontSize: 16.0, isAction: true, alternates: [], widthMultiplier: 1.5),
-                KeyModel(id: "globe", primaryLabel: "🌐", shiftLabel: nil, fontSize: nil, isAction: true, alternates: ["ब", "क", "म", "ा", "न", "ज", "ब", "क", "म", "ा", "न", "ज"], widthMultiplier: 1.0),
+                KeyModel(id: "globe", primaryLabel: "🌐", shiftLabel: nil, fontSize: nil, isAction: true, alternates: [], widthMultiplier: 1.0),
                 KeyModel(id: "space", primaryLabel: "", shiftLabel: nil, fontSize: nil, isAction: false, alternates: [], widthMultiplier: 5.0),
                 KeyModel(id: "return", primaryLabel: "⏎", shiftLabel: nil, fontSize: 18.0, isAction: true, alternates: [], widthMultiplier: 2.0)
             ]

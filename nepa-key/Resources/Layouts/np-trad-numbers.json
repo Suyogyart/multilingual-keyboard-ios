@@ -1,0 +1,45 @@
+{
+    "languageCode": "np-trad-numbers",
+    "rows": [
+      [
+        { "id": "१", "primaryLabel": "१", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "२", "primaryLabel": "२", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "३", "primaryLabel": "३", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "४", "primaryLabel": "४", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "५", "primaryLabel": "५", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "६", "primaryLabel": "६", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "७", "primaryLabel": "७", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "८", "primaryLabel": "८", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "९", "primaryLabel": "९", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "०", "primaryLabel": "०", "alternates": [], "widthMultiplier": 1.0 }
+      ],
+      [
+        { "id": "-", "primaryLabel": "-", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "/", "primaryLabel": "/", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": ":", "primaryLabel": ":", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": ";", "primaryLabel": ";", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "(", "primaryLabel": "(", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": ")", "primaryLabel": ")", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "$", "primaryLabel": "$", "alternates": ["€", "£", "¥", "₩", "₽"], "widthMultiplier": 1.0 },
+        { "id": "&", "primaryLabel": "&", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "@", "primaryLabel": "@", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "\"", "primaryLabel": "\"", "alternates": ["”", "“", "„", "»", "«"], "widthMultiplier": 1.0 }
+      ],
+      [
+        { "id": "symbols", "primaryLabel": "#+=", "fontSize": 18, "isAction": true, "alternates": [], "widthMultiplier": 1.5 },
+        { "id": ".", "primaryLabel": ".", "alternates": ["…"], "widthMultiplier": 1.4 },
+        { "id": ",", "primaryLabel": ",", "alternates": [], "widthMultiplier": 1.4 },
+        { "id": "?", "primaryLabel": "?", "alternates": ["¿"], "widthMultiplier": 1.4 },
+        { "id": "!", "primaryLabel": "!", "alternates": ["¡"], "widthMultiplier": 1.4 },
+        { "id": "'", "primaryLabel": "'", "alternates": ["’", "‘", "`"], "widthMultiplier": 1.4 },
+        { "id": "delete", "primaryLabel": "⌫", "isAction": true, "alternates": [], "widthMultiplier": 1.5 }
+      ],
+      [
+        { "id": "letters", "primaryLabel": "कखग", "fontSize": 18, "isAction": true, "alternates": [], "widthMultiplier": 1.5 },
+        { "id": "globe", "primaryLabel": "🌐", "isAction": true, "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "space", "primaryLabel": "", "isAction": true, "alternates": [], "widthMultiplier": 5.0 },
+        { "id": "return", "primaryLabel": "⏎", "isAction": true, "alternates": [], "widthMultiplier": 2.0 }
+      ]
+    ]
+  }
+  

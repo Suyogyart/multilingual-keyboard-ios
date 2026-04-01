@@ -37,7 +37,7 @@
     ],
     [
       { "id": "numbers", "primaryLabel": "123", "fontSize": 18, "isAction": true, "alternates": [], "widthMultiplier": 1.5 },
-      { "id": "globe", "primaryLabel": "🌐", "alternates": ["ब", "क", "म", "ा", "न", "ज", "ब", "क", "म", "ा", "न", "ज", "ब", "क", "म", "ा", "न", "ज"], "isAction": true, "widthMultiplier": 1.0 },
+      { "id": "globe", "primaryLabel": "🌐", "alternates": [], "isAction": true, "widthMultiplier": 1.0 },
       { "id": "space", "primaryLabel": "", "alternates": [], "isAction": true, "widthMultiplier": 5.0 },
       { "id": "return", "primaryLabel": "⏎", "alternates": [], "isAction": true, "widthMultiplier": 2.0 }
     ]

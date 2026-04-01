@@ -1,0 +1,64 @@
+{
+    "languageCode": "np-trad",
+    "rows": [
+      [
+        { "id": "ञ", "primaryLabel": "ञ", "shiftLabel": "१", "alternates": ["ञ्", "ञा", "ञि", "ञी", "ञु", "ञू", "ञृ", "ञॄ", "ञॢ", "ञॣ", "ञे", "ञै", "ञो", "ञौ", "ञं", "ञः"], "widthMultiplier": 1.0 },
+        { "id": "घ", "primaryLabel": "घ", "shiftLabel": "२", "alternates": ["घ्", "घा", "घि", "घी", "घु", "घू", "घृ", "घॄ", "घॢ", "घॣ", "घे", "घै", "घो", "घौ", "घं", "घः"], "widthMultiplier": 1.0 },
+        { "id": "ङ", "primaryLabel": "ङ", "shiftLabel": "३", "alternates": ["ङ्", "ङा", "ङि", "ङी", "ङु", "ङू", "ङृ", "ङॄ", "ङॢ", "ङॣ", "ङे", "ङै", "ङो", "ङौ", "ङं", "ङः"], "widthMultiplier": 1.0 },
+        { "id": "झ", "primaryLabel": "झ", "shiftLabel": "४", "alternates": ["झ्", "झा", "झि", "झी", "झु", "झू", "झृ", "झॄ", "झॢ", "झॣ", "झे", "झै", "झो", "झौ", "झं", "झः"], "widthMultiplier": 1.0 },
+        { "id": "छ", "primaryLabel": "छ", "shiftLabel": "५", "alternates": ["छ्", "छा", "छि", "छी", "छु", "छू", "छृ", "छॄ", "छॢ", "छॣ", "छे", "छै", "छो", "छौ", "छं", "छः"], "widthMultiplier": 1.0 },
+        { "id": "ट", "primaryLabel": "ट", "shiftLabel": "६", "alternates": ["ट्", "टा", "टि", "टी", "टु", "टू", "टृ", "टॄ", "टॢ", "टॣ", "टे", "टै", "टो", "टौ", "टं", "टः"], "widthMultiplier": 1.0 },
+        { "id": "ठ", "primaryLabel": "ठ", "shiftLabel": "७", "alternates": ["ठ्", "ठा", "ठि", "ठी", "ठु", "ठू", "ठृ", "ठॄ", "ठॢ", "ठॣ", "ठे", "ठै", "ठो", "ठौ", "ठं", "ठः"], "widthMultiplier": 1.0 },
+        { "id": "ड", "primaryLabel": "ड", "shiftLabel": "८", "alternates": ["ड्", "डा", "डि", "डी", "डु", "डू", "डृ", "डॄ", "डॢ", "डॣ", "डे", "डै", "डो", "डौ", "डं", "डः"], "widthMultiplier": 1.0 },
+        { "id": "ढ", "primaryLabel": "ढ", "shiftLabel": "९", "alternates": ["ढ्", "ढा", "ढि", "ढी", "ढु", "ढू", "ढृ", "ढॄ", "ढॢ", "ढॣ", "ढे", "ढै", "ढो", "ढौ", "ढं", "ढः"], "widthMultiplier": 1.0 },
+        { "id": "ण", "primaryLabel": "ण", "shiftLabel": "०", "alternates": ["ण्", "णा", "णि", "णी", "णु", "णू", "णृ", "णॄ", "णॢ", "णॣ", "णे", "णै", "णो", "णौ", "णं", "णः"], "widthMultiplier": 1.0 },
+        { "id": "्", "primaryLabel": "्", "shiftLabel": "ं", "alternates": [""], "widthMultiplier": 1.0 }
+      ],
+      [
+        { "id": "ध", "primaryLabel": "ध", "shiftLabel": "ो", "alternates": ["ध्", "धा", "धि", "धी", "धु", "धू", "धृ", "धॄ", "धॢ", "धॣ", "धे", "धै", "धो", "धौ", "धं", "धः"], "widthMultiplier": 1.0 },
+        { "id": "भ", "primaryLabel": "भ", "shiftLabel": "र्‍", "alternates": ["भ्", "भा", "भि", "भी", "भु", "भू", "भृ", "भॄ", "भॢ", "भॣ", "भे", "भै", "भो", "भौ", "भं", "भः"], "widthMultiplier": 1.0 },
+        { "id": "च", "primaryLabel": "च", "shiftLabel": "||", "alternates": ["च्", "चा", "चि", "ची", "चु", "चू", "चृ", "चॄ", "चॢ", "चॣ", "चे", "चै", "चो", "चौ", "चं", "चः"], "widthMultiplier": 1.0 },
+        { "id": "त", "primaryLabel": "त", "shiftLabel": "त्र", "alternates": ["त्", "ता", "ति", "ती", "तु", "तू", "तृ", "तॄ", "तॢ", "तॣ", "ते", "तै", "तो", "तौ", "तं", "तः"], "widthMultiplier": 1.0 },
+        { "id": "थ", "primaryLabel": "थ", "shiftLabel": "ए", "alternates": ["थ्", "था", "थि", "थी", "थु", "थू", "थृ", "थॄ", "थॢ", "थॣ", "थे", "थै", "थो", "थौ", "थं", "थः"], "widthMultiplier": 1.0 },
+        { "id": "ग", "primaryLabel": "ग", "shiftLabel": "ऐ", "alternates": ["ग्", "गा", "गि", "गी", "गु", "गू", "गृ", "गॄ", "गॢ", "गॣ", "गे", "गै", "गो", "गौ", "गं", "गः"], "widthMultiplier": 1.0 },
+        { "id": "ष", "primaryLabel": "ष", "shiftLabel": "इ", "alternates": ["ष्", "षा", "षि", "षी", "षु", "षू", "षृ", "षॄ", "षॢ", "षॣ", "षे", "षै", "षो", "षौ", "षं", "षः"], "widthMultiplier": 1.0 },
+        { "id": "य", "primaryLabel": "य", "shiftLabel": "ई", "alternates": ["य्", "या", "यि", "यी", "यु", "यू", "यृ", "यॄ", "यॢ", "यॣ", "ये", "यै", "यो", "यौ", "यं", "यः"], "widthMultiplier": 1.0 },
+        { "id": "उ", "primaryLabel": "उ", "shiftLabel": "ऊ", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "ृ", "primaryLabel": "ृ", "shiftLabel": " ़", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "े", "primaryLabel": "े", "shiftLabel": "ै", "alternates": [], "widthMultiplier": 1.0 }
+      ],
+      [
+        { "id": "ब", "primaryLabel": "ब", "shiftLabel": "न्ह", "alternates": ["ब्", "बा", "बि", "बी", "बु", "बू", "बृ", "बॄ", "बॢ", "बॣ", "बे", "बै", "बो", "बौ", "बं", "बः"], "widthMultiplier": 1.0 },
+        { "id": "क", "primaryLabel": "क", "shiftLabel": "क्ष", "alternates": ["क्", "का", "कि", "की", "कु", "कू", "कृ", "कॄ", "कॢ", "कॣ", "के", "कै", "को", "कौ", "कं", "कः"], "widthMultiplier": 1.0 },
+        { "id": "म", "primaryLabel": "म", "shiftLabel": "ओ", "alternates": ["म्", "मा", "मि", "मी", "मु", "मू", "मृ", "मॄ", "मॢ", "मॣ", "मे", "मै", "मो", "मौ", "मं", "मः"], "widthMultiplier": 1.0 },
+        { "id": "ा", "primaryLabel": "ा", "shiftLabel": "ँ", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "न", "primaryLabel": "न", "shiftLabel": "म्ह", "alternates": ["न्", "ना", "नि", "नी", "नु", "नू", "नृ", "नॄ", "नॢ", "नॣ", "ने", "नै", "नो", "नौ", "नं", "नः"], "widthMultiplier": 1.0 },
+        { "id": "ज", "primaryLabel": "ज", "shiftLabel": "ज्ञ", "alternates": ["ज्", "जा", "जि", "जी", "जु", "जू", "जृ", "जॄ", "जॢ", "जॣ", "जे", "जै", "जो", "जौ", "जं", "जः"], "widthMultiplier": 1.0 },
+        { "id": "व", "primaryLabel": "व", "shiftLabel": "हृ", "alternates": ["व्", "वा", "वि", "वी", "वु", "वू", "वृ", "वॄ", "वॢ", "वॣ", "वे", "वै", "वो", "वौ", "वं", "वः"], "widthMultiplier": 1.0 },
+        { "id": "प", "primaryLabel": "प", "shiftLabel": "श्र", "alternates": ["प्", "पा", "पि", "पी", "पु", "पू", "पृ", "पॄ", "पॢ", "पॣ", "पे", "पै", "पो", "पौ", "पं", "पः"], "widthMultiplier": 1.0 },
+        { "id": "ि", "primaryLabel": "ि", "shiftLabel": "ी", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "स", "primaryLabel": "स", "shiftLabel": "अं", "alternates": ["स्", "सा", "सि", "सी", "सु", "सू", "सृ", "सॄ", "सॢ", "सॣ", "से", "सै", "सो", "सौ", "सं", "सः"], "widthMultiplier": 1.0 },
+        { "id": "ु", "primaryLabel": "ु", "shiftLabel": "ू", "alternates": [], "widthMultiplier": 1.0 }
+      ],
+      [
+        { "id": "shift", "primaryLabel": "⇧", "isAction": true, "alternates": [], "widthMultiplier": 1.5 },
+        { "id": "श", "primaryLabel": "श", "shiftLabel": "अः", "alternates": ["श्", "शा", "शि", "शी", "शु", "शू", "शृ", "शॄ", "शॢ", "शॣ", "शे", "शै", "शो", "शौ", "शं", "शः"], "widthMultiplier": 1.0 },
+        { "id": "ह", "primaryLabel": "ह", "shiftLabel": "ह्म", "alternates": ["ह्", "हा", "हि", "ही", "हु", "हू", "हृ", "हॄ", "हॢ", "हॣ", "हे", "है", "हो", "हौ", "हं", "हः"], "widthMultiplier": 1.0 },
+        { "id": "अ", "primaryLabel": "अ", "shiftLabel": "ऋ", "alternates": ["अ्", "आ", "इ", "ई", "उ", "ऊ", "ऋ", "ॠ", "ऌ", "ॡ", "ए", "ऐ", "ओ", "औ", "अं", "अः"], "widthMultiplier": 1.0 },
+        { "id": "ख", "primaryLabel": "ख", "shiftLabel": "आ", "alternates": ["ख्", "खा", "खि", "खी", "खु", "खू", "खृ", "खॄ", "खॢ", "खॣ", "खे", "खै", "खो", "खौ", "खं", "खः"], "widthMultiplier": 1.0 },
+        { "id": "द", "primaryLabel": "द", "shiftLabel": "त्त", "alternates": ["द्", "दा", "दि", "दी", "दु", "दू", "दृ", "दॄ", "दॢ", "दॣ", "दे", "दै", "दो", "दौ", "दं", "दः"], "widthMultiplier": 1.0 },
+        { "id": "ल", "primaryLabel": "ल", "shiftLabel": "द्व", "alternates": ["ल्", "ला", "लि", "ली", "लु", "लू", "लृ", "लॄ", "लॢ", "लॣ", "ले", "लै", "लो", "लौ", "लं", "लः"], "widthMultiplier": 1.0 },
+        { "id": "फ", "primaryLabel": "फ", "shiftLabel": "ः", "alternates": ["फ्", "फा", "फि", "फी", "फु", "फू", "फृ", "फॄ", "फॢ", "फॣ", "फे", "फै", "फो", "फौ", "फं", "फः"], "widthMultiplier": 1.0 },
+        { "id": ",", "primaryLabel": ",", "shiftLabel": "ौ", "alternates": [], "widthMultiplier": 1.0 },
+        { "id": "र", "primaryLabel": "र", "shiftLabel": "रू", "alternates": ["र्", "रा", "रि", "री", "रु", "रू", "रृ", "रॄ", "रॢ", "रॣ", "रे", "रै", "रो", "रौ", "रं", "रः"], "widthMultiplier": 1.0 },
+        { "id": "delete", "primaryLabel": "⌫", "isAction": true, "alternates": [], "widthMultiplier": 1.5 }
+      ],
+      [
+        { "id": "numbers", "primaryLabel": "१२३", "fontSize": 18, "isAction": true, "alternates": [], "widthMultiplier": 1.5 },
+        { "id": "globe", "primaryLabel": "🌐", "alternates": [], "isAction": true, "widthMultiplier": 1.0 },
+        { "id": "space", "primaryLabel": "", "alternates": [], "isAction": true, "widthMultiplier": 5.0 },
+        { "id": "return", "primaryLabel": "⏎", "alternates": [], "isAction": true, "widthMultiplier": 2.0 }
+      ]
+    ]
+  }
+  

@@ -15,6 +15,12 @@ protocol KeyboardEngineDelegate: AnyObject {
     func hideAlternatesPopover()
     func handleSlideOverAlternates(at point: CGPoint)
     func insertSelectedAlternateCharacter()
+    
+    func switchToNextLanguage()
+    func showLanguageSelector(for key: KeyModel)
+    func hideLanguageSelector()
+    func handleSlideOverLanguages(at point: CGPoint)
+    func selectHighlightedLanguage()
 }
 
 // MARK: - Main View
@@ -45,6 +51,8 @@ class KeyboardTouchEngineView: UIView {
     private var activeTouches: [UITouch: KeyModel] = [:]
     private var isShowingAlternates = false
     private var alternatesOwnerTouch: UITouch?
+    private var isShowingLanguageSelector = false
+    private var languageSelectorOwnerTouch: UITouch?
     private var keyBackgroundLayers: [String: CAShapeLayer] = [:]
     private var keyLabels: [String: UILabel] = [:]
     private var activeKeys: [KeyModel] = []
@@ -126,6 +134,9 @@ extension KeyboardTouchEngineView {
                 delegate?.deleteCharacter()
                 deleteTouch = touch
                 startDeleteTimer()
+            } else if key.id == "globe" {
+                longPressTouch = touch
+                startGlobeLongPressTimer(for: key)
             } else if !key.alternates.isEmpty {
                 longPressTouch = touch
                 startLongPressTimer(for: key)
@@ -138,9 +149,15 @@ extension KeyboardTouchEngineView {
             guard let currentKey = activeTouches[touch] else { continue }
             let location = touch.location(in: self)
             
-            if isShowingAlternates && touch == alternatesOwnerTouch {
+            if isShowingLanguageSelector && touch == languageSelectorOwnerTouch {
+                delegate?.handleSlideOverLanguages(at: location)
+            } else if isShowingAlternates && touch == alternatesOwnerTouch {
                 delegate?.handleSlideOverAlternates(at: location)
-            } else if !isShowingAlternates || touch != alternatesOwnerTouch {
+            } else {
+                let isPopoverTouch = (isShowingAlternates && touch == alternatesOwnerTouch)
+                    || (isShowingLanguageSelector && touch == languageSelectorOwnerTouch)
+                if isPopoverTouch { continue }
+                
                 if let newKey = findKey(at: location), newKey.id != currentKey.id {
                     if touch == longPressTouch {
                         longPressTimer?.invalidate()
@@ -154,7 +171,10 @@ extension KeyboardTouchEngineView {
                     activeTouches[touch] = newKey
                     highlight(key: newKey, active: true)
                     
-                    if !newKey.alternates.isEmpty && newKey.id != "delete" {
+                    if newKey.id == "globe" {
+                        longPressTouch = touch
+                        startGlobeLongPressTimer(for: newKey)
+                    } else if !newKey.alternates.isEmpty && newKey.id != "delete" {
                         longPressTouch = touch
                         startLongPressTimer(for: newKey)
                     }
@@ -174,14 +194,21 @@ extension KeyboardTouchEngineView {
                 deleteTouch = nil
             }
             
-            if isShowingAlternates && touch == alternatesOwnerTouch {
+            if isShowingLanguageSelector && touch == languageSelectorOwnerTouch {
+                delegate?.selectHighlightedLanguage()
+                delegate?.hideLanguageSelector()
+                isShowingLanguageSelector = false
+                languageSelectorOwnerTouch = nil
+            } else if isShowingAlternates && touch == alternatesOwnerTouch {
                 delegate?.insertSelectedAlternateCharacter()
                 delegate?.hideAlternatesPopover()
                 isShowingAlternates = false
                 alternatesOwnerTouch = nil
             } else if let key = activeTouches[touch] {
-                if key.id != "delete" {
-                    let controlKeys = ["space", "return", "shift", "globe", "numbers", "letters", "symbols"]
+                if key.id == "globe" {
+                    delegate?.switchToNextLanguage()
+                } else if key.id != "delete" {
+                    let controlKeys = ["space", "return", "shift", "numbers", "letters", "symbols"]
                     
                     if controlKeys.contains(key.id) {
                         delegate?.insertCharacter(key.id)
@@ -215,6 +242,11 @@ extension KeyboardTouchEngineView {
                 isShowingAlternates = false
                 alternatesOwnerTouch = nil
                 delegate?.hideAlternatesPopover()
+            }
+            if touch == languageSelectorOwnerTouch {
+                isShowingLanguageSelector = false
+                languageSelectorOwnerTouch = nil
+                delegate?.hideLanguageSelector()
             }
             
             if let keyToUnhighlight = activeTouches.removeValue(forKey: touch) {
@@ -263,6 +295,25 @@ extension KeyboardTouchEngineView {
             self?.isShowingAlternates = true
             self?.alternatesOwnerTouch = ownerTouch
             self?.delegate?.showAlternatesPopover(for: key)
+        }
+    }
+    
+    private func startGlobeLongPressTimer(for key: KeyModel) {
+        longPressTimer?.invalidate()
+        
+        let delay = KeyboardSettings.shared.longPressDelay
+        let ownerTouch = longPressTouch
+        
+        longPressTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) { [weak self] _ in
+            
+            if KeyboardSettings.shared.enableHaptics {
+                let generator = UIImpactFeedbackGenerator(style: .heavy)
+                generator.impactOccurred()
+            }
+            
+            self?.isShowingLanguageSelector = true
+            self?.languageSelectorOwnerTouch = ownerTouch
+            self?.delegate?.showLanguageSelector(for: key)
         }
     }
     

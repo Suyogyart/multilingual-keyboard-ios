@@ -17,20 +17,25 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
 
     var touchEngineView: KeyboardTouchEngineView!
     var activeCalloutView: AlternatesCalloutView?
+    var activeLanguageSelectorView: LanguageSelectorView?
     
     // Keyboard settings
     private var customHeightConstraint: NSLayoutConstraint?
     
-    // Change the cache to use a String key for unique identification
     private var layoutCache: [String: KeyboardLayout] = [:]
     
-    // Add a property to track the active language
     private var currentLanguageCode: String = "en-US"
     private var currentLayoutType: KeyboardLayoutType = .letters
     
+    // Ordered list of available languages — add new languages here
+    let availableLanguages: [LanguageOption] = [
+        LanguageOption(code: "en-US", displayName: "English"),
+        LanguageOption(code: "np-trad", displayName: "नेपाली (Traditional)")
+    ]
+    
     // Timers for native shortcuts
     private var lastShiftTapTime: TimeInterval = 0
-    private var lastSpaceTapTime: TimeInterval = 0 // ADDED: For double-tap period
+    private var lastSpaceTapTime: TimeInterval = 0
     
     override func loadView() {
         self.view = KeyboardInputView() // Assuming this is defined elsewhere in your project
@@ -73,17 +78,20 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
         
         setupTouchEngine()
         
-        // 2. Instant Static Load (Zero Lag)
+        let savedLanguage = KeyboardSettings.shared.selectedLanguage
         self.currentLayoutType = .letters
-        self.currentLanguageCode = "en-US"
+        self.currentLanguageCode = savedLanguage
+        
+        // Always show English instantly as a fallback so the keyboard is never blank
         self.touchEngineView.applyLanguageLayout(KeyboardLayout.defaultEnglish)
+        let enKey = cacheKey(for: "en-US", type: .letters)
+        self.layoutCache[enKey] = KeyboardLayout.defaultEnglish
+        prewarmLayouts(for: "en-US")
         
-        // 3. Seed the cache
-        let key = cacheKey(for: currentLanguageCode, type: currentLayoutType)
-        self.layoutCache[key] = KeyboardLayout.defaultEnglish
-        
-        // 4. Start loading Numbers and Symbols in the background
-        prewarmLayouts(for: currentLanguageCode)
+        if savedLanguage != "en-US" {
+            prewarmLayouts(for: savedLanguage)
+            switchLayout(to: .letters, language: savedLanguage)
+        }
         
     }
     
@@ -272,6 +280,49 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
     func hideAlternatesPopover() {
         activeCalloutView?.removeFromSuperview()
         activeCalloutView = nil
+    }
+    
+    // --- Globe / Language Switching ---
+    
+    func switchToNextLanguage() {
+        guard let currentIndex = availableLanguages.firstIndex(where: { $0.code == currentLanguageCode }) else { return }
+        let nextIndex = (currentIndex + 1) % availableLanguages.count
+        let nextLang = availableLanguages[nextIndex]
+        switchToLanguage(nextLang.code)
+    }
+    
+    func showLanguageSelector(for key: KeyModel) {
+        let selector = LanguageSelectorView(
+            options: availableLanguages,
+            currentCode: currentLanguageCode,
+            baseKeyFrame: key.frame,
+            keyboardBounds: self.view.bounds
+        )
+        self.view.addSubview(selector)
+        self.activeLanguageSelectorView = selector
+    }
+    
+    func hideLanguageSelector() {
+        activeLanguageSelectorView?.removeFromSuperview()
+        activeLanguageSelectorView = nil
+    }
+    
+    func handleSlideOverLanguages(at point: CGPoint) {
+        activeLanguageSelectorView?.handlePan(touchPointInKeyboard: point)
+    }
+    
+    func selectHighlightedLanguage() {
+        guard let selected = activeLanguageSelectorView?.getSelectedLanguage() else { return }
+        if selected.code != currentLanguageCode {
+            switchToLanguage(selected.code)
+        }
+    }
+    
+    private func switchToLanguage(_ languageCode: String) {
+        currentLanguageCode = languageCode
+        KeyboardSettings.shared.selectedLanguage = languageCode
+        prewarmLayouts(for: languageCode)
+        switchLayout(to: .letters, language: languageCode)
     }
 }
 
