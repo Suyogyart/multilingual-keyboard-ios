@@ -42,21 +42,25 @@ class KeyboardTouchEngineView: UIView {
     }
     
     // MARK: Properties (Internal State)
-    private var activeTouchTarget: KeyModel?
+    private var activeTouches: [UITouch: KeyModel] = [:]
     private var isShowingAlternates = false
+    private var alternatesOwnerTouch: UITouch?
     private var keyBackgroundLayers: [String: CAShapeLayer] = [:]
     private var keyLabels: [String: UILabel] = [:]
     private var activeKeys: [KeyModel] = []
     
     // MARK: Properties (Timers)
     private var longPressTimer: Timer?
+    private var longPressTouch: UITouch?
     private var deleteTimer: Timer?
+    private var deleteTouch: UITouch?
     private var deleteHoldDuration: TimeInterval = 0.0
     
     // MARK: - Init & Traits
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupTraitObservation()
+        self.isMultipleTouchEnabled = true
         self.isUserInteractionEnabled = true
         self.backgroundColor = .clear
     }
@@ -64,6 +68,7 @@ class KeyboardTouchEngineView: UIView {
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupTraitObservation()
+        self.isMultipleTouchEnabled = true
         self.isUserInteractionEnabled = true
         self.backgroundColor = .clear
     }
@@ -103,11 +108,11 @@ class KeyboardTouchEngineView: UIView {
 extension KeyboardTouchEngineView {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else { return }
-        let location = touch.location(in: self)
-        
-        if let key = findKey(at: location) {
-            activeTouchTarget = key
+        for touch in touches {
+            let location = touch.location(in: self)
+            guard let key = findKey(at: location) else { continue }
+            
+            activeTouches[touch] = key
             highlight(key: key, active: true)
             
             let specialKeyIDs = ["space", "return", "shift", "delete", "numbers", "letters", "symbols", "globe"]
@@ -119,81 +124,105 @@ extension KeyboardTouchEngineView {
             
             if key.id == "delete" {
                 delegate?.deleteCharacter()
+                deleteTouch = touch
                 startDeleteTimer()
             } else if !key.alternates.isEmpty {
+                longPressTouch = touch
                 startLongPressTimer(for: key)
             }
-        } else {
-            print("Key Not Found at: ", location)
         }
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first, let key = activeTouchTarget else { return }
-        let location = touch.location(in: self)
-        
-        if isShowingAlternates {
-            delegate?.handleSlideOverAlternates(at: location)
-        } else {
-            if let newKey = findKey(at: location), newKey.id != key.id {
-                longPressTimer?.invalidate()
-                stopDeleteTimer()
-                
-                highlight(key: key, active: false)
-                activeTouchTarget = newKey
-                highlight(key: newKey, active: true)
-                
-                if !newKey.alternates.isEmpty && newKey.id != "delete" {
-                    startLongPressTimer(for: newKey)
+        for touch in touches {
+            guard let currentKey = activeTouches[touch] else { continue }
+            let location = touch.location(in: self)
+            
+            if isShowingAlternates && touch == alternatesOwnerTouch {
+                delegate?.handleSlideOverAlternates(at: location)
+            } else if !isShowingAlternates || touch != alternatesOwnerTouch {
+                if let newKey = findKey(at: location), newKey.id != currentKey.id {
+                    if touch == longPressTouch {
+                        longPressTimer?.invalidate()
+                        longPressTouch = nil
+                    }
+                    if touch == deleteTouch {
+                        stopDeleteTimer()
+                    }
+                    
+                    highlight(key: currentKey, active: false)
+                    activeTouches[touch] = newKey
+                    highlight(key: newKey, active: true)
+                    
+                    if !newKey.alternates.isEmpty && newKey.id != "delete" {
+                        longPressTouch = touch
+                        startLongPressTimer(for: newKey)
+                    }
                 }
             }
         }
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        longPressTimer?.invalidate()
-        stopDeleteTimer()
-        
-        if isShowingAlternates {
-            delegate?.insertSelectedAlternateCharacter()
-            delegate?.hideAlternatesPopover()
-            isShowingAlternates = false
-        } else if let key = activeTouchTarget {
-            if key.id != "delete" {
-                let controlKeys = ["space", "return", "shift", "globe", "numbers", "letters", "symbols"]
-                
-                if controlKeys.contains(key.id) {
-                    delegate?.insertCharacter(key.id)
-                } else {
-                    let isShifted = currentShiftState == .uppercased || currentShiftState == .capsLocked
-                    let textToInsert = (isShifted && key.shiftLabel != nil) ? key.shiftLabel! : key.primaryLabel
-                    delegate?.insertCharacter(textToInsert)
+        for touch in touches {
+            if touch == longPressTouch {
+                longPressTimer?.invalidate()
+                longPressTouch = nil
+            }
+            if touch == deleteTouch {
+                stopDeleteTimer()
+                deleteTouch = nil
+            }
+            
+            if isShowingAlternates && touch == alternatesOwnerTouch {
+                delegate?.insertSelectedAlternateCharacter()
+                delegate?.hideAlternatesPopover()
+                isShowingAlternates = false
+                alternatesOwnerTouch = nil
+            } else if let key = activeTouches[touch] {
+                if key.id != "delete" {
+                    let controlKeys = ["space", "return", "shift", "globe", "numbers", "letters", "symbols"]
+                    
+                    if controlKeys.contains(key.id) {
+                        delegate?.insertCharacter(key.id)
+                    } else {
+                        let isShifted = currentShiftState == .uppercased || currentShiftState == .capsLocked
+                        let textToInsert = (isShifted && key.shiftLabel != nil) ? key.shiftLabel! : key.primaryLabel
+                        delegate?.insertCharacter(textToInsert)
+                    }
+                }
+            }
+            
+            if let keyToUnhighlight = activeTouches.removeValue(forKey: touch) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+                    self?.highlight(key: keyToUnhighlight, active: false)
                 }
             }
         }
-        
-        if let keyToUnhighlight = activeTouchTarget {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
-                self?.highlight(key: keyToUnhighlight, active: false)
-            }
-        }
-        
-        activeTouchTarget = nil
     }
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        longPressTimer?.invalidate()
-        stopDeleteTimer()
-        isShowingAlternates = false
-        
-        if let keyToUnhighlight = activeTouchTarget {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
-                self?.highlight(key: keyToUnhighlight, active: false)
+        for touch in touches {
+            if touch == longPressTouch {
+                longPressTimer?.invalidate()
+                longPressTouch = nil
+            }
+            if touch == deleteTouch {
+                stopDeleteTimer()
+                deleteTouch = nil
+            }
+            if touch == alternatesOwnerTouch {
+                isShowingAlternates = false
+                alternatesOwnerTouch = nil
+                delegate?.hideAlternatesPopover()
+            }
+            
+            if let keyToUnhighlight = activeTouches.removeValue(forKey: touch) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+                    self?.highlight(key: keyToUnhighlight, active: false)
+                }
             }
         }
-        
-        activeTouchTarget = nil
-        delegate?.hideAlternatesPopover()
     }
 }
 
@@ -222,6 +251,7 @@ extension KeyboardTouchEngineView {
         longPressTimer?.invalidate()
         
         let delay = KeyboardSettings.shared.longPressDelay
+        let ownerTouch = longPressTouch
         
         longPressTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) { [weak self] _ in
             
@@ -231,6 +261,7 @@ extension KeyboardTouchEngineView {
             }
             
             self?.isShowingAlternates = true
+            self?.alternatesOwnerTouch = ownerTouch
             self?.delegate?.showAlternatesPopover(for: key)
         }
     }
@@ -270,18 +301,15 @@ extension KeyboardTouchEngineView {
         guard var layout = currentLayout, bounds.width > 0, bounds.height > 0, bounds.height < 400 else { return }
         
         let rowCount = CGFloat(layout.rows.count)
-        let totalVerticalSpacing = (rowCount - 1) * Metrics.verticalSpacing
-        let availableHeight = bounds.height - Metrics.edgeInsets.top - Metrics.edgeInsets.bottom - totalVerticalSpacing
+        let availableHeight = bounds.height - Metrics.edgeInsets.top - Metrics.edgeInsets.bottom
         let rowHeight = availableHeight / rowCount
         
         var currentY = Metrics.edgeInsets.top
         
         for rowIndex in 0..<layout.rows.count {
             let keysInRow = layout.rows[rowIndex]
-            let keyCount = CGFloat(keysInRow.count)
             let totalMultipliers = keysInRow.reduce(0) { $0 + $1.widthMultiplier }
-            let totalHorizontalSpacing = (keyCount - 1) * Metrics.horizontalSpacing
-            let availableWidth = bounds.width - Metrics.edgeInsets.left - Metrics.edgeInsets.right - totalHorizontalSpacing
+            let availableWidth = bounds.width - Metrics.edgeInsets.left - Metrics.edgeInsets.right
             let baseUnitWidth = availableWidth / totalMultipliers
             
             var currentX = Metrics.edgeInsets.left
@@ -291,9 +319,9 @@ extension KeyboardTouchEngineView {
                 let keyWidth = baseUnitWidth * key.widthMultiplier
                 let keyFrame = CGRect(x: currentX, y: currentY, width: keyWidth, height: rowHeight)
                 layout.rows[rowIndex][keyIndex].frame = keyFrame
-                currentX += keyWidth + Metrics.horizontalSpacing
+                currentX += keyWidth
             }
-            currentY += rowHeight + Metrics.verticalSpacing
+            currentY += rowHeight
         }
         
         self.currentLayout = layout
@@ -306,6 +334,12 @@ extension KeyboardTouchEngineView {
         }
     }
     
+    private func visualFrame(for key: KeyModel) -> CGRect {
+        let dx = Metrics.keyVisualInset + Metrics.horizontalSpacing / 2.0
+        let dy = Metrics.keyVisualInset + Metrics.verticalSpacing / 2.0
+        return key.frame.insetBy(dx: dx, dy: dy)
+    }
+    
     private func updateLayerFrames() {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
@@ -314,15 +348,15 @@ extension KeyboardTouchEngineView {
             guard let bgLayer = keyBackgroundLayers[key.id],
                   let label = keyLabels[key.id] else { continue }
             
-            let visualFrame = key.frame.insetBy(dx: Metrics.keyVisualInset, dy: Metrics.keyVisualInset)
+            let vFrame = visualFrame(for: key)
             
-            bgLayer.path = UIBezierPath(roundedRect: visualFrame, cornerRadius: Metrics.keyCornerRadius).cgPath
+            bgLayer.path = UIBezierPath(roundedRect: vFrame, cornerRadius: Metrics.keyCornerRadius).cgPath
             
             if let gradient = bgLayer.sublayers?.first(where: { $0 is CAGradientLayer }) {
                 gradient.frame = bgLayer.path?.boundingBoxOfPath ?? bgLayer.bounds
             }
             
-            label.frame = visualFrame
+            label.frame = vFrame
         }
         
         CATransaction.commit()
@@ -362,7 +396,7 @@ extension KeyboardTouchEngineView {
     
     private func drawKey(keyModel: KeyModel) {
         let backgroundLayer = CAShapeLayer()
-        let visualFrame = keyModel.frame.insetBy(dx: Metrics.keyVisualInset, dy: Metrics.keyVisualInset)
+        let visualFrame = self.visualFrame(for: keyModel)
         
         backgroundLayer.path = UIBezierPath(roundedRect: visualFrame, cornerRadius: Metrics.keyCornerRadius).cgPath
         
@@ -487,8 +521,7 @@ extension KeyboardTouchEngineView {
         for key in activeKeys {
             guard let bgLayer = keyBackgroundLayers[key.id], let label = keyLabels[key.id] else { continue }
             
-            // THE FIX: Check if this specific key is currently being pressed down
-            let isActive = (key.id == activeTouchTarget?.id)
+            let isActive = activeTouches.values.contains(where: { $0.id == key.id })
             
             bgLayer.sublayers?.filter { $0 is CAGradientLayer }.forEach { $0.removeFromSuperlayer() }
             
