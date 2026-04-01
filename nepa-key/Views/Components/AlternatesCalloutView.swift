@@ -80,7 +80,7 @@ class AlternatesCalloutView: UIView {
     }
     
     private func updateTheme() {
-        let colors = ThemeManager.current()
+        let colors = ThemeManager.current(traitCollection: self.traitCollection)
         
         CATransaction.begin()
         CATransaction.setDisableActions(true)
@@ -188,7 +188,7 @@ class AlternatesCalloutView: UIView {
     private func updateHighlight(to index: Int) {
         guard index >= 0, index < alternates.count else { return }
         
-        let colors = ThemeManager.current()
+        let colors = ThemeManager.current(traitCollection: self.traitCollection)
         let oldIndex = highlightedIndex
         highlightedIndex = index
         

@@ -47,7 +47,24 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
         applyUserHeightPreference()
+        
+        let colors = ThemeManager.current(traitCollection: self.traitCollection)
+        self.overrideUserInterfaceStyle = colors.interfaceStyle
+        
+        // THE FIX: Completely block the system backdrop with an opaque color.
+        if KeyboardSettings.shared.selectedTheme == .system {
+            // For the default theme, we WANT Apple's native curved glass to show.
+            self.view.backgroundColor = .clear
+        } else {
+            // For custom themes, we use a 100% solid color to hide the Apple backdrop.
+            // This covers everything, including the bottom Safe Area.
+            self.view.backgroundColor = colors.keyboardBackground
+        }
+        
+        // Remove any custom blur views if you added them in the previous step
+        self.view.subviews.filter { $0 is UIVisualEffectView }.forEach { $0.removeFromSuperview() }
     }
     
     override func viewDidLoad() {

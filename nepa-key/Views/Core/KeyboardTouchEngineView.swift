@@ -57,30 +57,33 @@ class KeyboardTouchEngineView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupTraitObservation()
+        self.isUserInteractionEnabled = true
+        self.backgroundColor = .clear
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupTraitObservation()
+        self.isUserInteractionEnabled = true
+        self.backgroundColor = .clear
     }
     
     func applyLanguageLayout(_ layout: KeyboardLayout) {
         self.currentLayout = layout
         
-        // CRITICAL FIX: Wipe the board clean when layouts change.
-        // This forces layoutSubviews to draw fresh layers (e.g., when switching to Numbers)
         self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
         self.keyBackgroundLayers.removeAll()
         self.keyLabels.removeAll()
         self.activeKeys.removeAll()
         
-        self.setNeedsLayout() // Triggers layoutSubviews()
+        self.setNeedsLayout()
     }
     
+    // THE FIX: Do not nuke layers on appearance change. Just update colors.
     private func setupTraitObservation() {
         if #available(iOS 17.0, *) {
             registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (view: KeyboardTouchEngineView, _) in
-                view.renderVisuals()
+                view.applyTheme()
             }
         }
     }
@@ -88,11 +91,9 @@ class KeyboardTouchEngineView: UIView {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         
-        // We only need manual observation for iOS 16 and below.
-        // iOS 17+ is already handled by setupTraitObservation() in the init.
         if #unavailable(iOS 17.0) {
             if self.traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-                renderVisuals()
+                applyTheme()
             }
         }
     }
@@ -109,11 +110,9 @@ extension KeyboardTouchEngineView {
             activeTouchTarget = key
             highlight(key: key, active: true)
             
-            // Play Haptics
             let specialKeyIDs = ["space", "return", "shift", "delete", "numbers", "letters", "symbols", "globe"]
             HapticEngine.shared.playTap(isSpecialKey: specialKeyIDs.contains(key.id))
             
-            // Play Sounds only if enabled
             if KeyboardSettings.shared.enableSounds {
                 UIDevice.current.playInputClick()
             }
@@ -124,6 +123,8 @@ extension KeyboardTouchEngineView {
             } else if !key.alternates.isEmpty {
                 startLongPressTimer(for: key)
             }
+        } else {
+            print("Key Not Found at: ", location)
         }
     }
 
@@ -171,15 +172,11 @@ extension KeyboardTouchEngineView {
             }
         }
         
-        // --- THE EDGE-TAP FIX ---
         if let keyToUnhighlight = activeTouchTarget {
-            // Delay the turn-off by 50ms (3 frames). This forces the GPU to
-            // draw the 'pressed' state even when iOS clumps edge touches together.
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
                 self?.highlight(key: keyToUnhighlight, active: false)
             }
         }
-        // ------------------------
         
         activeTouchTarget = nil
     }
@@ -189,13 +186,11 @@ extension KeyboardTouchEngineView {
         stopDeleteTimer()
         isShowingAlternates = false
         
-        // --- THE EDGE-TAP FIX ---
         if let keyToUnhighlight = activeTouchTarget {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
                 self?.highlight(key: keyToUnhighlight, active: false)
             }
         }
-        // ------------------------
         
         activeTouchTarget = nil
         delegate?.hideAlternatesPopover()
@@ -206,26 +201,21 @@ extension KeyboardTouchEngineView {
 extension KeyboardTouchEngineView {
     
     private func findKey(at point: CGPoint) -> KeyModel? {
-        // 1. Exact Hit Test (Now completely flat)
         if let exactKey = activeKeys.first(where: { $0.frame.contains(point) }) {
             return exactKey
         }
         
-        // 2. Dead-Zone Pythagorean Fallback
-        var closestKey: KeyModel?
-        var shortestDistance: CGFloat = .greatestFiniteMagnitude
-        
-        for key in activeKeys {
-            let centerX = key.frame.midX
-            let centerY = key.frame.midY
-            let distance = hypot(point.x - centerX, point.y - centerY)
-            
-            if distance < shortestDistance {
-                shortestDistance = distance
-                closestKey = key
-            }
-        }
-        return closestKey
+        return activeKeys.min(by: { key1, key2 in
+            let dist1 = distanceSquared(from: point, to: key1.frame)
+            let dist2 = distanceSquared(from: point, to: key2.frame)
+            return dist1 < dist2
+        })
+    }
+    
+    private func distanceSquared(from point: CGPoint, to rect: CGRect) -> CGFloat {
+        let dx = max(rect.minX - point.x, 0, point.x - rect.maxX)
+        let dy = max(rect.minY - point.y, 0, point.y - rect.maxY)
+        return dx * dx + dy * dy
     }
     
     private func startLongPressTimer(for key: KeyModel) {
@@ -235,7 +225,6 @@ extension KeyboardTouchEngineView {
         
         longPressTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) { [weak self] _ in
             
-            // Trigger haptic feedback when the popup appears to let the user know
             if KeyboardSettings.shared.enableHaptics {
                 let generator = UIImpactFeedbackGenerator(style: .heavy)
                 generator.impactOccurred()
@@ -278,8 +267,6 @@ extension KeyboardTouchEngineView {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        // 1. BOUNDS BOUNCE GUARD:
-        // Ignore height=0 (collapsed) and height>400 (iOS full-screen initialization glitch).
         guard var layout = currentLayout, bounds.width > 0, bounds.height > 0, bounds.height < 400 else { return }
         
         let rowCount = CGFloat(layout.rows.count)
@@ -310,11 +297,8 @@ extension KeyboardTouchEngineView {
         }
         
         self.currentLayout = layout
-        
-        // Update the flattened array with the newly calculated frames for accurate hit-testing
         self.activeKeys = layout.rows.flatMap { $0 }
         
-        // 2. PERFORMANCE FIX: Mutative Rendering
         if keyBackgroundLayers.isEmpty {
             renderVisuals()
         } else {
@@ -322,7 +306,6 @@ extension KeyboardTouchEngineView {
         }
     }
     
-    // Smoothly resizes existing layers (crucial for zero-lag layout updates and rotation)
     private func updateLayerFrames() {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
@@ -333,17 +316,12 @@ extension KeyboardTouchEngineView {
             
             let visualFrame = key.frame.insetBy(dx: Metrics.keyVisualInset, dy: Metrics.keyVisualInset)
             
-            // 1. UPDATE SHAPE PATH: This fixes the solid background and shadow position
             bgLayer.path = UIBezierPath(roundedRect: visualFrame, cornerRadius: Metrics.keyCornerRadius).cgPath
             
-            // 2. UPDATE GRADIENT SUBVIEW: This fixes the misplaced gradient/liquid glass
             if let gradient = bgLayer.sublayers?.first(where: { $0 is CAGradientLayer }) {
-                // Important: Match the frame of the gradient to the new visualFrame
-                // We use the bounding box of the path to ensure it's exact
                 gradient.frame = bgLayer.path?.boundingBoxOfPath ?? bgLayer.bounds
             }
             
-            // 3. UPDATE LABEL: UILabel handles its own vertical centering inside the frame
             label.frame = visualFrame
         }
         
@@ -388,12 +366,13 @@ extension KeyboardTouchEngineView {
         
         backgroundLayer.path = UIBezierPath(roundedRect: visualFrame, cornerRadius: Metrics.keyCornerRadius).cgPath
         
-        let colors = ThemeManager.current() // Get current theme colors
+        let colors = ThemeManager.current(traitCollection: self.traitCollection)
         let isSpecial = keyModel.isAction ?? false
         let isShifted = currentShiftState == .uppercased || currentShiftState == .capsLocked
         
+        // Let applyTheme handle the opacity, start with solid base
         let baseColor = isSpecial ? colors.specialKeyBackground : colors.keyBackground
-        backgroundLayer.fillColor = baseColor.withAlphaComponent(0.5).cgColor
+        backgroundLayer.fillColor = baseColor.cgColor
         
         backgroundLayer.shadowColor = colors.shadowColor.cgColor
         backgroundLayer.shadowOpacity = 1.0
@@ -424,7 +403,7 @@ extension KeyboardTouchEngineView {
         label.font = UIFont.systemFont(ofSize: calculatedFontSize, weight: .regular)
         label.textColor = colors.textColor
         label.textAlignment = .center
-        label.frame = visualFrame // UILabel vertically centers automatically!
+        label.frame = visualFrame
         
         self.addSubview(label)
         keyLabels[keyModel.id] = label
@@ -436,27 +415,22 @@ extension KeyboardTouchEngineView {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         
-        let colors = ThemeManager.current()
+        let colors = ThemeManager.current(traitCollection: self.traitCollection)
         let isSpecial = key.isAction ?? false
         
-        // Check if this key is currently using a Gradient sublayer
         let gradientLayer = bgLayer.sublayers?.first(where: { $0 is CAGradientLayer })
         
         if active {
             if let grad = gradientLayer {
-                // Dim the gradient to 60% to show it's pressed
                 grad.opacity = 0.6
             } else {
-                // Solid color fallback
                 let baseColor = isSpecial ? colors.specialKeyBackground : colors.keyBackground
                 bgLayer.fillColor = baseColor.withAlphaComponent(0.5).cgColor
             }
         } else {
             if let grad = gradientLayer {
-                // Restore gradient opacity
                 grad.opacity = 1.0
             } else {
-                // Revert solid color
                 bgLayer.fillColor = isSpecial ? colors.specialKeyBackground.cgColor : colors.keyBackground.cgColor
             }
         }
@@ -465,7 +439,7 @@ extension KeyboardTouchEngineView {
     }
     
     private func updateKeyVisualsForShiftState() {
-        let colors = ThemeManager.current() // Get current theme colors
+        let colors = ThemeManager.current(traitCollection: self.traitCollection)
         
         CATransaction.begin()
         CATransaction.setDisableActions(true)
@@ -473,7 +447,6 @@ extension KeyboardTouchEngineView {
         let isShifted = currentShiftState == .uppercased || currentShiftState == .capsLocked
         
         for key in activeKeys {
-            // UPDATED: Check keyLabels instead of keyTextLayers
             if let label = keyLabels[key.id] {
                 var displayText = key.primaryLabel
                 
@@ -504,10 +477,9 @@ extension KeyboardTouchEngineView {
 
 extension KeyboardTouchEngineView {
     func applyTheme() {
-        let colors = ThemeManager.current()
-        
-//        self.backgroundColor = colors.keyboardBackground
-        self.backgroundColor = .clear
+        let colors = ThemeManager.current(traitCollection: self.traitCollection)
+        self.overrideUserInterfaceStyle = colors.interfaceStyle
+        self.backgroundColor = colors.keyboardBackground
         
         CATransaction.begin()
         CATransaction.setDisableActions(true)
@@ -515,28 +487,37 @@ extension KeyboardTouchEngineView {
         for key in activeKeys {
             guard let bgLayer = keyBackgroundLayers[key.id], let label = keyLabels[key.id] else { continue }
             
-            // Remove old gradients if switching to solid
+            // THE FIX: Check if this specific key is currently being pressed down
+            let isActive = (key.id == activeTouchTarget?.id)
+            
             bgLayer.sublayers?.filter { $0 is CAGradientLayer }.forEach { $0.removeFromSuperlayer() }
             
             if let gradColors = colors.gradientColors {
                 let gradient = CAGradientLayer()
                 
-                // Ensure the gradient fits the VISUAL path, not just the layer bounds
-                gradient.frame = bgLayer.path?.boundingBoxOfPath ?? layer.bounds
+                // THE FIX: bgLayer.bounds, not layer.bounds
+                gradient.frame = bgLayer.path?.boundingBoxOfPath ?? bgLayer.bounds
                 
                 gradient.colors = gradColors.map { $0.cgColor }
                 gradient.cornerRadius = Metrics.keyCornerRadius
                 
                 if colors.isLiquidGlass {
-                    gradient.locations = [0.0, 0.5] // Creates that "half-filled" liquid look
+                    gradient.locations = [0.0, 0.5]
                     bgLayer.borderWidth = 0.5
                     bgLayer.borderColor = UIColor(white: 1.0, alpha: 0.3).cgColor
                 }
                 
                 bgLayer.insertSublayer(gradient, at: 0)
                 bgLayer.fillColor = UIColor.clear.cgColor
+                
+                // Retain the visual highlight state if pressed during theme change
+                gradient.opacity = isActive ? 0.6 : 1.0
+                
             } else {
-                bgLayer.fillColor = key.isAction == true ? colors.specialKeyBackground.cgColor : colors.keyBackground.cgColor
+                let baseColor = key.isAction == true ? colors.specialKeyBackground : colors.keyBackground
+                
+                // Retain the visual highlight state if pressed during theme change
+                bgLayer.fillColor = isActive ? baseColor.withAlphaComponent(0.5).cgColor : baseColor.cgColor
                 bgLayer.borderWidth = 0
             }
             

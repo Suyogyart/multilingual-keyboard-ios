@@ -48,6 +48,10 @@ enum ThemeType: String, CaseIterable {
     case blue = "Ocean Blue Solid"
     case redGradient = "Sunset Red Gradient"
     case liquidGlass = "Liquid Glass"
+    case matcha = "Matcha Green"
+    case himalayanDawn = "Himalayan Dawn"
+    case heritageTerracotta = "Heritage Terracotta"
+    case cyberGlass = "Cyber Glass"
     
     var displayName: String { self.rawValue }
 }
@@ -60,4 +64,7 @@ struct ThemeColors {
     let shadowColor: UIColor
     var gradientColors: [UIColor]? = nil // New: For Gradients and Liquid Glass
     var isLiquidGlass: Bool = false      // New: Toggle for the glass effect
+    
+    // NEW: Tells the system whether this theme should force Light/Dark mode
+    let interfaceStyle: UIUserInterfaceStyle
 }
