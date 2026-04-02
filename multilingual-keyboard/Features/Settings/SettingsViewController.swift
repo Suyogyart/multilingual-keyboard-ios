@@ -32,6 +32,7 @@ class SettingsViewController: UIViewController {
         testTextField.backgroundColor = .secondarySystemGroupedBackground
         testTextField.clearButtonMode = .whileEditing
         testTextField.translatesAutoresizingMaskIntoConstraints = false
+        testTextField.clearButtonMode = .always
         
         view.addSubview(testTextField)
         
@@ -66,15 +67,25 @@ class SettingsViewController: UIViewController {
 extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return 3
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return section == 0 ? "Keyboard Height" : "Typing Feedback"
+        switch section {
+        case 0: return "Keyboard Height"
+        case 1: return "Typing Feedback"
+        case 2: return "Features"
+        default: return nil
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return section == 0 ? 2 : 3
+        switch section {
+        case 0: return 2
+        case 1: return 3
+        case 2: return 2
+        default: return 0
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -116,9 +127,8 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
             }
         }
         // SECTION 1: Typing Feedback
-        else {
+        else if indexPath.section == 1 {
             if indexPath.row == 0 {
-                // ROW 0: Long Press Delay (Stepper)
                 let cell = UITableViewCell(style: .value1, reuseIdentifier: "delayCell")
                 cell.textLabel?.text = "Key Long Press Delay"
                 
@@ -128,7 +138,7 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
                 let stepper = UIStepper()
                 stepper.minimumValue = 0.1
                 stepper.maximumValue = 1.0
-                stepper.stepValue = 0.05 // Increments of 50ms
+                stepper.stepValue = 0.05
                 stepper.value = currentDelay
                 stepper.addTarget(self, action: #selector(delayStepperChanged(_:)), for: .valueChanged)
                 
@@ -137,7 +147,6 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
                 return cell
                 
             } else {
-                // ROW 1 & 2: Sounds and Haptics
                 let cell = UITableViewCell(style: .default, reuseIdentifier: "cell")
                 cell.textLabel?.text = indexPath.row == 1 ? "Keypress Sound" : "Keypress Haptics"
                 let toggle = UISwitch()
@@ -148,6 +157,25 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
                 cell.selectionStyle = .none
                 return cell
             }
+        }
+        // SECTION 2: Features
+        else {
+            let cell = UITableViewCell(style: .default, reuseIdentifier: "cell")
+            let toggle = UISwitch()
+            toggle.addTarget(self, action: #selector(featureToggleChanged(_:)), for: .valueChanged)
+            cell.accessoryView = toggle
+            cell.selectionStyle = .none
+            
+            if indexPath.row == 0 {
+                cell.textLabel?.text = "Word Suggestions"
+                toggle.isOn = KeyboardSettings.shared.enableSuggestions
+                toggle.tag = 100
+            } else {
+                cell.textLabel?.text = "Keyboard Background"
+                toggle.isOn = KeyboardSettings.shared.enableKeyboardBackground
+                toggle.tag = 101
+            }
+            return cell
         }
     }
     
@@ -208,6 +236,14 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
             KeyboardSettings.shared.enableSounds = sender.isOn
         } else {
             KeyboardSettings.shared.enableHaptics = sender.isOn
+        }
+    }
+    
+    @objc func featureToggleChanged(_ sender: UISwitch) {
+        if sender.tag == 100 {
+            KeyboardSettings.shared.enableSuggestions = sender.isOn
+        } else if sender.tag == 101 {
+            KeyboardSettings.shared.enableKeyboardBackground = sender.isOn
         }
     }
     

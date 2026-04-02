@@ -13,7 +13,7 @@ protocol SuggestionBarDelegate: AnyObject {
 
 class SuggestionBarView: UIView {
     
-    static let barHeight: CGFloat = 40.0
+    static let barHeight: CGFloat = 44.0
     
     weak var delegate: SuggestionBarDelegate?
     
@@ -33,6 +33,13 @@ class SuggestionBarView: UIView {
     }
     
     private func setupViews() {
+        let colors = ThemeManager.current(traitCollection: traitCollection)
+        backgroundColor = KeyboardSettings.shared.enableKeyboardBackground ? colors.keyboardBackground : UIColor.clear
+        
+        scrollView.layer.cornerRadius = 10
+        scrollView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        scrollView.clipsToBounds = true
+
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.alwaysBounceHorizontal = true
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -47,13 +54,13 @@ class SuggestionBarView: UIView {
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
-            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4),
+            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
             
             contentStack.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
             contentStack.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
-            contentStack.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
-            contentStack.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
+            contentStack.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor, constant: 4),
+            contentStack.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor, constant: -4),
             contentStack.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor)
         ])
     }
@@ -120,6 +127,14 @@ class SuggestionBarView: UIView {
         let colors = ThemeManager.current(traitCollection: traitCollection)
         self.overrideUserInterfaceStyle = colors.interfaceStyle
         
+        if !KeyboardSettings.shared.enableKeyboardBackground {
+            scrollView.backgroundColor = .clear
+        } else if KeyboardSettings.shared.selectedTheme == .system {
+            scrollView.backgroundColor = .clear
+        } else {
+            scrollView.backgroundColor = colors.keyboardBackground
+        }
+        
         for view in contentStack.arrangedSubviews {
             if let button = view as? UIButton {
                 button.setTitleColor(colors.textColor, for: .normal)
@@ -129,3 +144,4 @@ class SuggestionBarView: UIView {
         }
     }
 }
+

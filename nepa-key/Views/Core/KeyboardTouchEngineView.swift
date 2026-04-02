@@ -564,7 +564,7 @@ extension KeyboardTouchEngineView {
     func applyTheme() {
         let colors = ThemeManager.current(traitCollection: self.traitCollection)
         self.overrideUserInterfaceStyle = colors.interfaceStyle
-        self.backgroundColor = colors.keyboardBackground
+        self.backgroundColor = KeyboardSettings.shared.enableKeyboardBackground ? colors.keyboardBackground : .clear
         
         CATransaction.begin()
         CATransaction.setDisableActions(true)

@@ -14,6 +14,7 @@ class MainTabBarController: UITabBarController {
         super.viewDidLoad()
         setupTabs()
         customizeTabBarAppearance()
+        selectedIndex = 2
     }
     
     private func setupTabs() {

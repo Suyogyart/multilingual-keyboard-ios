@@ -18,6 +18,13 @@ enum KeyboardLanguage: String, CaseIterable {
         }
     }
     
+    var hasSuggestions: Bool {
+        switch self {
+        case .english: return true
+        case .nepaliTraditional: return false
+        }
+    }
+    
     func filename(for type: KeyboardLayoutType) -> String {
         switch type {
         case .letters: return rawValue

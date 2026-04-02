@@ -15,6 +15,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
     var activeLanguageSelectorView: LanguageSelectorView?
     
     private var customHeightConstraint: NSLayoutConstraint?
+    private var suggestionBarHeightConstraint: NSLayoutConstraint?
     private let suggestionEngine = WordSuggestionEngine()
     
     private var layoutCache: [String: KeyboardLayout] = [:]
@@ -42,24 +43,22 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        refreshSuggestionBarVisibility()
         applyUserHeightPreference()
         
         let colors = ThemeManager.current(traitCollection: self.traitCollection)
         self.overrideUserInterfaceStyle = colors.interfaceStyle
         
-        // THE FIX: Completely block the system backdrop with an opaque color.
-        if KeyboardSettings.shared.selectedTheme == .system {
-            // For the default theme, we WANT Apple's native curved glass to show.
+        if !KeyboardSettings.shared.enableKeyboardBackground {
+            self.view.backgroundColor = .clear
+        } else if KeyboardSettings.shared.selectedTheme == .system {
             self.view.backgroundColor = .clear
         } else {
-            // For custom themes, we use a 100% solid color to hide the Apple backdrop.
-            // This covers everything, including the bottom Safe Area.
             self.view.backgroundColor = colors.keyboardBackground
         }
         
         suggestionBar.applyTheme()
         
-        // Remove any custom blur views if you added them in the previous step
         self.view.subviews.filter { $0 is UIVisualEffectView }.forEach { $0.removeFromSuperview() }
     }
     
@@ -80,12 +79,14 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         self.layoutCache[key] = defaultLayout
         
         prewarmLayouts(for: savedLanguage)
-        suggestionEngine.load(for: savedLanguage)
+        if savedLanguage.hasSuggestions {
+            suggestionEngine.load(for: savedLanguage)
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if currentLayoutType == .letters {
+        if shouldShowSuggestionBar {
             suggestionBar.updateSuggestions(suggestionEngine.starterSuggestions())
         }
     }
@@ -96,11 +97,14 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         suggestionBar.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(suggestionBar)
         
+        let heightConstraint = suggestionBar.heightAnchor.constraint(equalToConstant: SuggestionBarView.barHeight)
+        suggestionBarHeightConstraint = heightConstraint
+        
         NSLayoutConstraint.activate([
             suggestionBar.topAnchor.constraint(equalTo: self.view.topAnchor),
             suggestionBar.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             suggestionBar.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-            suggestionBar.heightAnchor.constraint(equalToConstant: SuggestionBarView.barHeight)
+            heightConstraint
         ])
     }
     
@@ -111,9 +115,11 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         
         self.view.clipsToBounds = false
         self.view.addSubview(touchEngineView)
+//        self.view.bringSubviewToFront(suggestionBar)
+//        self.view.bringSubviewToFront(touchEngineView)
         
         NSLayoutConstraint.activate([
-            touchEngineView.topAnchor.constraint(equalTo: suggestionBar.bottomAnchor),
+            touchEngineView.topAnchor.constraint(equalTo: suggestionBar.bottomAnchor, constant: -8),
             touchEngineView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
             touchEngineView.leftAnchor.constraint(equalTo: self.view.leftAnchor),
             touchEngineView.rightAnchor.constraint(equalTo: self.view.rightAnchor)
@@ -141,6 +147,21 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         }
     }
     
+    private var shouldShowSuggestionBar: Bool {
+        return currentLayoutType == .letters
+            && currentLanguage.hasSuggestions
+            && KeyboardSettings.shared.enableSuggestions
+    }
+    
+    private func refreshSuggestionBarVisibility() {
+        let show = shouldShowSuggestionBar
+        suggestionBar.isHidden = !show
+        suggestionBarHeightConstraint?.constant = show ? SuggestionBarView.barHeight : 0
+        if !show {
+            suggestionBar.updateSuggestions([])
+        }
+    }
+    
     func switchLayout(to type: KeyboardLayoutType, language: KeyboardLanguage? = nil) {
         if let lang = language { self.currentLanguage = lang }
         self.currentLayoutType = type
@@ -153,11 +174,8 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
             prewarmLayouts(for: currentLanguage)
         }
         
-        let showBar = (type == .letters)
-        suggestionBar.isHidden = !showBar
-        if !showBar {
-            suggestionBar.updateSuggestions([])
-        } else {
+        refreshSuggestionBarVisibility()
+        if shouldShowSuggestionBar {
             updateSuggestions()
         }
     }
@@ -325,14 +343,15 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         KeyboardSettings.shared.selectedLanguage = language
         prewarmLayouts(for: language)
         switchLayout(to: .letters, language: language)
-        suggestionEngine.load(for: language)
-        suggestionBar.updateSuggestions([])
+        if language.hasSuggestions {
+            suggestionEngine.load(for: language)
+        }
     }
     
     // MARK: - Suggestions
     
     private func updateSuggestions() {
-        guard currentLayoutType == .letters else {
+        guard shouldShowSuggestionBar else {
             suggestionBar.updateSuggestions([])
             return
         }
@@ -343,7 +362,13 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
             if context.isEmpty {
                 suggestionBar.updateSuggestions(suggestionEngine.starterSuggestions())
             } else {
-                suggestionBar.updateSuggestions([])
+                let lastWord = lastCompletedWord(in: context)
+                if !lastWord.isEmpty {
+                    let nextWords = suggestionEngine.nextWordSuggestions(after: lastWord, limit: 5)
+                    suggestionBar.updateSuggestions(nextWords)
+                } else {
+                    suggestionBar.updateSuggestions([])
+                }
             }
             return
         }
@@ -364,6 +389,19 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
             }
         }
         return String(word.reversed())
+    }
+    
+    private func lastCompletedWord(in context: String) -> String {
+        let trimmed = context.trimmingCharacters(in: .whitespacesAndNewlines)
+        var word = ""
+        for char in trimmed.reversed() {
+            if char.isLetter || char == "'" || char == "\u{2019}" {
+                word.append(char)
+            } else {
+                break
+            }
+        }
+        return String(word.reversed()).lowercased()
     }
     
     // MARK: - SuggestionBarDelegate

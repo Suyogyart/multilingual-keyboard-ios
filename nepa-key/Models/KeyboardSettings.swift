@@ -43,4 +43,10 @@ class KeyboardSettings {
         get { KeyboardLanguage(rawValue: selectedLanguageRaw) ?? .english }
         set { selectedLanguageRaw = newValue.rawValue }
     }
+    
+    @AppGroupDefault(key: "enableSuggestions", defaultValue: true)
+    var enableSuggestions: Bool
+    
+    @AppGroupDefault(key: "enableKeyboardBackground", defaultValue: true)
+    var enableKeyboardBackground: Bool
 }
