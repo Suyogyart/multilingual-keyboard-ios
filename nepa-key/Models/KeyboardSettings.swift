@@ -36,6 +36,11 @@ class KeyboardSettings {
         set { selectedThemeRaw = newValue.rawValue }
     }
     
-    @AppGroupDefault(key: "selectedLanguage", defaultValue: "en-US")
-    var selectedLanguage: String
+    @AppGroupDefault(key: "selectedLanguage", defaultValue: KeyboardLanguage.english.rawValue)
+    var selectedLanguageRaw: String
+    
+    var selectedLanguage: KeyboardLanguage {
+        get { KeyboardLanguage(rawValue: selectedLanguageRaw) ?? .english }
+        set { selectedLanguageRaw = newValue.rawValue }
+    }
 }

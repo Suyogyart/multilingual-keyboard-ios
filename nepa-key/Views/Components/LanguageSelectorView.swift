@@ -7,14 +7,9 @@
 
 import UIKit
 
-struct LanguageOption {
-    let code: String
-    let displayName: String
-}
-
 class LanguageSelectorView: UIView {
-    private let options: [LanguageOption]
-    private let currentCode: String
+    private let options: [KeyboardLanguage]
+    private let currentLanguage: KeyboardLanguage
     private let baseKeyFrame: CGRect
     private var highlightedIndex: Int = 0
     
@@ -26,12 +21,12 @@ class LanguageSelectorView: UIView {
     private var textLabels: [UILabel] = []
     private var checkmarkLabels: [UILabel] = []
     
-    init(options: [LanguageOption], currentCode: String, baseKeyFrame: CGRect, keyboardBounds: CGRect) {
+    init(options: [KeyboardLanguage], currentLanguage: KeyboardLanguage, baseKeyFrame: CGRect, keyboardBounds: CGRect) {
         self.options = options
-        self.currentCode = currentCode
+        self.currentLanguage = currentLanguage
         self.baseKeyFrame = baseKeyFrame
         
-        if let idx = options.firstIndex(where: { $0.code == currentCode }) {
+        if let idx = options.firstIndex(of: currentLanguage) {
             self.highlightedIndex = idx
         }
         
@@ -118,7 +113,7 @@ class LanguageSelectorView: UIView {
         }
         
         for (index, check) in checkmarkLabels.enumerated() {
-            check.isHidden = (options[index].code != currentCode)
+            check.isHidden = (options[index] != currentLanguage)
             check.textColor = colors.textColor
         }
         
@@ -138,11 +133,11 @@ class LanguageSelectorView: UIView {
         
         self.layer.addSublayer(highlightLayer)
         
-        for (index, option) in options.enumerated() {
+        for (index, language) in options.enumerated() {
             let rowFrame = CGRect(x: 0, y: CGFloat(index) * slotHeight, width: slotWidth, height: slotHeight)
             
             let label = UILabel(frame: rowFrame.insetBy(dx: 12, dy: 0))
-            label.text = option.displayName
+            label.text = language.displayName
             label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
             label.textAlignment = .left
             self.addSubview(label)
@@ -159,7 +154,7 @@ class LanguageSelectorView: UIView {
             check.text = "✓"
             check.font = UIFont.systemFont(ofSize: 14, weight: .bold)
             check.textAlignment = .center
-            check.isHidden = (option.code != currentCode)
+            check.isHidden = (language != currentLanguage)
             self.addSubview(check)
             checkmarkLabels.append(check)
         }
@@ -208,7 +203,7 @@ class LanguageSelectorView: UIView {
         CATransaction.commit()
     }
     
-    func getSelectedLanguage() -> LanguageOption? {
+    func getSelectedLanguage() -> KeyboardLanguage? {
         guard highlightedIndex >= 0, highlightedIndex < options.count else { return nil }
         return options[highlightedIndex]
     }
