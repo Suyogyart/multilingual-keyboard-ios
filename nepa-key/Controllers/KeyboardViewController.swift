@@ -7,13 +7,15 @@
 
 import UIKit
 
-class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
+class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, SuggestionBarDelegate {
 
     var touchEngineView: KeyboardTouchEngineView!
+    var suggestionBar: SuggestionBarView!
     var activeCalloutView: AlternatesCalloutView?
     var activeLanguageSelectorView: LanguageSelectorView?
     
     private var customHeightConstraint: NSLayoutConstraint?
+    private let suggestionEngine = WordSuggestionEngine()
     
     private var layoutCache: [String: KeyboardLayout] = [:]
     
@@ -55,6 +57,8 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
             self.view.backgroundColor = colors.keyboardBackground
         }
         
+        suggestionBar.applyTheme()
+        
         // Remove any custom blur views if you added them in the previous step
         self.view.subviews.filter { $0 is UIVisualEffectView }.forEach { $0.removeFromSuperview() }
     }
@@ -63,6 +67,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
         super.viewDidLoad()
         self.view.backgroundColor = .clear
         
+        setupSuggestionBar()
         setupTouchEngine()
         
         let savedLanguage = KeyboardSettings.shared.selectedLanguage
@@ -75,7 +80,28 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
         self.layoutCache[key] = defaultLayout
         
         prewarmLayouts(for: savedLanguage)
+        suggestionEngine.load(for: savedLanguage)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if currentLayoutType == .letters {
+            suggestionBar.updateSuggestions(suggestionEngine.starterSuggestions())
+        }
+    }
+    
+    private func setupSuggestionBar() {
+        suggestionBar = SuggestionBarView()
+        suggestionBar.delegate = self
+        suggestionBar.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(suggestionBar)
         
+        NSLayoutConstraint.activate([
+            suggestionBar.topAnchor.constraint(equalTo: self.view.topAnchor),
+            suggestionBar.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            suggestionBar.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+            suggestionBar.heightAnchor.constraint(equalToConstant: SuggestionBarView.barHeight)
+        ])
     }
     
     private func setupTouchEngine() {
@@ -87,7 +113,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
         self.view.addSubview(touchEngineView)
         
         NSLayoutConstraint.activate([
-            touchEngineView.topAnchor.constraint(equalTo: self.view.topAnchor),
+            touchEngineView.topAnchor.constraint(equalTo: suggestionBar.bottomAnchor),
             touchEngineView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
             touchEngineView.leftAnchor.constraint(equalTo: self.view.leftAnchor),
             touchEngineView.rightAnchor.constraint(equalTo: self.view.rightAnchor)
@@ -126,45 +152,42 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
         } else {
             prewarmLayouts(for: currentLanguage)
         }
+        
+        let showBar = (type == .letters)
+        suggestionBar.isHidden = !showBar
+        if !showBar {
+            suggestionBar.updateSuggestions([])
+        } else {
+            updateSuggestions()
+        }
     }
     
     private func applyUserHeightPreference() {
         let scale = CGFloat(KeyboardSettings.shared.keyboardHeightScale)
         
-        // 1. Get current orientation and device type
         let currentBounds = self.view.window?.windowScene?.screen.bounds ?? UIScreen.main.bounds
         let isLandscape = currentBounds.width > currentBounds.height
         let isPhone = UIDevice.current.userInterfaceIdiom == .phone
         
-        // 2. Use your safe height detection logic
         let contextScreenHeight: CGFloat = currentBounds.height
         let defaultHeight: CGFloat = contextScreenHeight < 800 ? 216 : 226
         
+        let barHeight = suggestionBar.isHidden ? 0 : SuggestionBarView.barHeight
         var targetHeight: CGFloat
         
-        // 3. LOGIC: Disable scaling for iPhone Landscape only
         if isPhone && isLandscape {
-            // Force the standard compact landscape height (usually 160 or 170)
-            // We do NOT multiply by 'scale' here.
-            targetHeight = 160.0
+            targetHeight = 160.0 + barHeight
         } else {
-            // Apply user scale for Portrait (all devices) or iPad (all orientations)
-            targetHeight = defaultHeight * scale
+            targetHeight = defaultHeight * scale + barHeight
         }
         
-        // 4. Update or Create Constraints
-        if scale != 1.0 || isLandscape {
-            if customHeightConstraint == nil {
-                customHeightConstraint = self.view.heightAnchor.constraint(equalToConstant: targetHeight)
-                customHeightConstraint?.priority = UILayoutPriority(999)
-                customHeightConstraint?.isActive = true
-            } else {
-                customHeightConstraint?.constant = targetHeight
-                customHeightConstraint?.isActive = true
-            }
+        if customHeightConstraint == nil {
+            customHeightConstraint = self.view.heightAnchor.constraint(equalToConstant: targetHeight)
+            customHeightConstraint?.priority = UILayoutPriority(999)
+            customHeightConstraint?.isActive = true
         } else {
-            customHeightConstraint?.isActive = false
-            customHeightConstraint = nil
+            customHeightConstraint?.constant = targetHeight
+            customHeightConstraint?.isActive = true
         }
     }
     
@@ -181,21 +204,27 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
         
         // 1. Handle Control Commands
         if text == "space" || text == "" {
+            let lastWord = currentPartialWord()
+            
             // ADDED: Double-tap spacebar for period logic
             let now = Date().timeIntervalSince1970
             if (now - lastSpaceTapTime) < 0.3 {
                 self.textDocumentProxy.deleteBackward()
                 self.textDocumentProxy.insertText(". ") // TODO: - Change this for other languages
                 lastSpaceTapTime = 0 // Reset to prevent triple-tap bugs
+                suggestionBar.updateSuggestions([])
             } else {
                 self.textDocumentProxy.insertText(" ")
                 lastSpaceTapTime = now
+                let nextWords = suggestionEngine.nextWordSuggestions(after: lastWord, limit: 5)
+                suggestionBar.updateSuggestions(nextWords)
             }
             return
         }
         
         if text == "return" {
             self.textDocumentProxy.insertText("\n")
+            suggestionBar.updateSuggestions([])
             return
         }
         
@@ -223,11 +252,13 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
         if touchEngineView.currentShiftState == .uppercased {
             touchEngineView.currentShiftState = .lowercased
         }
+        
+        updateSuggestions()
     }
     
     func deleteCharacter() {
         self.textDocumentProxy.deleteBackward()
-        // No input click here either, since startDeleteTimer handles it!
+        updateSuggestions()
     }
     
     // --- Alternate Popover Handling ---
@@ -294,6 +325,57 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate {
         KeyboardSettings.shared.selectedLanguage = language
         prewarmLayouts(for: language)
         switchLayout(to: .letters, language: language)
+        suggestionEngine.load(for: language)
+        suggestionBar.updateSuggestions([])
+    }
+    
+    // MARK: - Suggestions
+    
+    private func updateSuggestions() {
+        guard currentLayoutType == .letters else {
+            suggestionBar.updateSuggestions([])
+            return
+        }
+        
+        let prefix = currentPartialWord()
+        if prefix.isEmpty {
+            let context = textDocumentProxy.documentContextBeforeInput ?? ""
+            if context.isEmpty {
+                suggestionBar.updateSuggestions(suggestionEngine.starterSuggestions())
+            } else {
+                suggestionBar.updateSuggestions([])
+            }
+            return
+        }
+        
+        let results = suggestionEngine.suggestions(for: prefix, limit: 5)
+        suggestionBar.updateSuggestions(results)
+    }
+    
+    private func currentPartialWord() -> String {
+        guard let context = textDocumentProxy.documentContextBeforeInput else { return "" }
+        
+        var word = ""
+        for char in context.reversed() {
+            if char.isLetter || char == "'" || char == "\u{2019}" {
+                word.append(char)
+            } else {
+                break
+            }
+        }
+        return String(word.reversed())
+    }
+    
+    // MARK: - SuggestionBarDelegate
+    
+    func didSelectSuggestion(_ word: String) {
+        let partial = currentPartialWord()
+        for _ in 0..<partial.count {
+            textDocumentProxy.deleteBackward()
+        }
+        textDocumentProxy.insertText(word + " ")
+        let nextWords = suggestionEngine.nextWordSuggestions(after: word, limit: 5)
+        suggestionBar.updateSuggestions(nextWords)
     }
 }
 

@@ -41,6 +41,7 @@ class ThemesViewController: UIViewController {
         testTextField.borderStyle = .roundedRect
         testTextField.backgroundColor = .secondarySystemGroupedBackground
         testTextField.translatesAutoresizingMaskIntoConstraints = false
+        testTextField.clearButtonMode = .whileEditing
         
         view.addSubview(testTextField)
         
