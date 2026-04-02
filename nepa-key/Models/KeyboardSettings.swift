@@ -49,4 +49,7 @@ class KeyboardSettings {
     
     @AppGroupDefault(key: "enableKeyboardBackground", defaultValue: true)
     var enableKeyboardBackground: Bool
+    
+    @AppGroupDefault(key: "recentEmoji", defaultValue: "")
+    var recentEmojiRaw: String
 }

@@ -7,10 +7,11 @@
 
 import UIKit
 
-class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, SuggestionBarDelegate {
+class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, SuggestionBarDelegate, EmojiKeyboardDelegate {
 
     var touchEngineView: KeyboardTouchEngineView!
     var suggestionBar: SuggestionBarView!
+    var emojiKeyboardView: EmojiKeyboardView?
     var activeCalloutView: AlternatesCalloutView?
     var activeLanguageSelectorView: LanguageSelectorView?
     
@@ -166,6 +167,13 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         if let lang = language { self.currentLanguage = lang }
         self.currentLayoutType = type
         
+        if type == .emoji {
+            showEmojiKeyboard()
+            return
+        }
+        
+        hideEmojiKeyboard()
+        
         let key = cacheKey(for: currentLanguage, type: currentLayoutType)
         
         if let cachedLayout = layoutCache[key] {
@@ -178,6 +186,51 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         if shouldShowSuggestionBar {
             updateSuggestions()
         }
+    }
+    
+    // MARK: - Emoji Keyboard
+    
+    private func showEmojiKeyboard() {
+        touchEngineView.isHidden = true
+        suggestionBar.isHidden = true
+        suggestionBarHeightConstraint?.constant = 0
+        
+        if emojiKeyboardView == nil {
+            let emojiView = EmojiKeyboardView()
+            emojiView.delegate = self
+            emojiView.translatesAutoresizingMaskIntoConstraints = false
+            self.view.addSubview(emojiView)
+            
+            NSLayoutConstraint.activate([
+                emojiView.topAnchor.constraint(equalTo: self.view.topAnchor),
+                emojiView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+                emojiView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+                emojiView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor)
+            ])
+            
+            emojiKeyboardView = emojiView
+        }
+        
+        emojiKeyboardView?.isHidden = false
+        emojiKeyboardView?.applyTheme()
+    }
+    
+    private func hideEmojiKeyboard() {
+        emojiKeyboardView?.isHidden = true
+        touchEngineView.isHidden = false
+    }
+    
+    func didSelectEmoji(_ emoji: String) {
+        textDocumentProxy.insertText(emoji)
+        EmojiRecentsManager.shared.recordUsage(emoji)
+    }
+    
+    func didTapABCKey() {
+        switchLayout(to: .letters)
+    }
+    
+    func didTapBackspace() {
+        textDocumentProxy.deleteBackward()
     }
     
     private func applyUserHeightPreference() {
@@ -219,6 +272,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         if text == "numbers" { switchLayout(to: .numbers); return }
         if text == "letters" { switchLayout(to: .letters); return }
         if text == "symbols" { switchLayout(to: .symbols); return }
+        if text == "emoji" { switchLayout(to: .emoji); return }
         
         // 1. Handle Control Commands
         if text == "space" || text == "" {

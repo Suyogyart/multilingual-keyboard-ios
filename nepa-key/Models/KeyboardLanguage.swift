@@ -30,6 +30,7 @@ enum KeyboardLanguage: String, CaseIterable {
         case .letters: return rawValue
         case .numbers: return "\(rawValue)-numbers"
         case .symbols: return "\(rawValue)-symbols"
+        case .emoji: return ""
         }
     }
 }
@@ -38,4 +39,5 @@ enum KeyboardLayoutType {
     case letters
     case numbers
     case symbols
+    case emoji
 }

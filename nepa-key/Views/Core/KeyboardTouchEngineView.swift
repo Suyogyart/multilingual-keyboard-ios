@@ -208,7 +208,7 @@ extension KeyboardTouchEngineView {
                 if key.id == "globe" {
                     delegate?.switchToNextLanguage()
                 } else if key.id != "delete" {
-                    let controlKeys = ["space", "return", "shift", "numbers", "letters", "symbols"]
+                    let controlKeys = ["space", "return", "shift", "numbers", "letters", "symbols", "emoji"]
                     
                     if controlKeys.contains(key.id) {
                         delegate?.insertCharacter(key.id)

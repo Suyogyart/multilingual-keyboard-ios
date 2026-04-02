@@ -57,7 +57,8 @@ struct KeyboardLayout: Decodable {
             [
                 KeyModel(id: "numbers", primaryLabel: "123", shiftLabel: nil, fontSize: 16.0, isAction: true, alternates: [], widthMultiplier: 1.5),
                 KeyModel(id: "globe", primaryLabel: "🌐", shiftLabel: nil, fontSize: nil, isAction: true, alternates: [], widthMultiplier: 1.0),
-                KeyModel(id: "space", primaryLabel: "", shiftLabel: nil, fontSize: nil, isAction: false, alternates: [], widthMultiplier: 5.0),
+                KeyModel(id: "emoji", primaryLabel: "😊", shiftLabel: nil, fontSize: nil, isAction: true, alternates: [], widthMultiplier: 1.0),
+                KeyModel(id: "space", primaryLabel: "", shiftLabel: nil, fontSize: nil, isAction: false, alternates: [], widthMultiplier: 4.0),
                 KeyModel(id: "return", primaryLabel: "⏎", shiftLabel: nil, fontSize: 18.0, isAction: true, alternates: [], widthMultiplier: 2.0)
             ]
         ]
@@ -126,7 +127,8 @@ struct KeyboardLayout: Decodable {
             [
                 KeyModel(id: "numbers", primaryLabel: "१२३", shiftLabel: nil, fontSize: 18.0, isAction: true, alternates: [], widthMultiplier: 1.5),
                 KeyModel(id: "globe", primaryLabel: "🌐", shiftLabel: nil, fontSize: nil, isAction: true, alternates: [], widthMultiplier: 1.0),
-                KeyModel(id: "space", primaryLabel: "", shiftLabel: nil, fontSize: nil, isAction: true, alternates: [], widthMultiplier: 5.0),
+                KeyModel(id: "emoji", primaryLabel: "😊", shiftLabel: nil, fontSize: nil, isAction: true, alternates: [], widthMultiplier: 1.0),
+                KeyModel(id: "space", primaryLabel: "", shiftLabel: nil, fontSize: nil, isAction: true, alternates: [], widthMultiplier: 4.0),
                 KeyModel(id: "return", primaryLabel: "⏎", shiftLabel: nil, fontSize: 18.0, isAction: true, alternates: [], widthMultiplier: 2.0)
             ]
         ]
