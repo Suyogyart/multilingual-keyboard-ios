@@ -4,7 +4,7 @@
     [
       { "id": "q", "primaryLabel": "q", "shiftLabel": "Q", "alternates": ["1"], "widthMultiplier": 1.0 },
       { "id": "w", "primaryLabel": "w", "shiftLabel": "W", "alternates": ["2"], "widthMultiplier": 1.0 },
-      { "id": "e", "primaryLabel": "e", "shiftLabel": "E", "alternates": ["3", "é", "è", "ê", "ë", "ब", "क", "म", "ा", "न", "ज"], "widthMultiplier": 1.0 },
+      { "id": "e", "primaryLabel": "e", "shiftLabel": "E", "alternates": ["3", "é", "è", "ê", "ë"], "widthMultiplier": 1.0 },
       { "id": "r", "primaryLabel": "r", "shiftLabel": "R", "alternates": ["4"], "widthMultiplier": 1.0 },
       { "id": "t", "primaryLabel": "t", "shiftLabel": "T", "alternates": ["5"], "widthMultiplier": 1.0 },
       { "id": "y", "primaryLabel": "y", "shiftLabel": "Y", "alternates": ["6"], "widthMultiplier": 1.0 },

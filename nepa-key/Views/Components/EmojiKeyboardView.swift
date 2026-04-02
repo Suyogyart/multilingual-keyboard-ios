@@ -217,7 +217,9 @@ class EmojiKeyboardView: UIView, UICollectionViewDataSource, UICollectionViewDel
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        delegate?.didSelectEmoji(categories[indexPath.section].emoji[indexPath.item])
+        guard let cell = collectionView.cellForItem(at: indexPath) as? EmojiCell,
+              let emoji = cell.currentEmoji else { return }
+        delegate?.didSelectEmoji(emoji)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -227,6 +229,10 @@ class EmojiKeyboardView: UIView, UICollectionViewDataSource, UICollectionViewDel
                 updateCategoryHighlight()
             }
         }
+    }
+    
+    func reloadRecents() {
+        collectionView.reloadSections(IndexSet(integer: 0))
     }
     
     // MARK: - Theme
@@ -248,6 +254,7 @@ class EmojiKeyboardView: UIView, UICollectionViewDataSource, UICollectionViewDel
 
 private class EmojiCell: UICollectionViewCell {
     private let label = UILabel()
+    private(set) var currentEmoji: String?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -264,6 +271,7 @@ private class EmojiCell: UICollectionViewCell {
     required init?(coder: NSCoder) { fatalError() }
     
     func configure(with emoji: String) {
+        currentEmoji = emoji
         label.text = emoji
     }
 }

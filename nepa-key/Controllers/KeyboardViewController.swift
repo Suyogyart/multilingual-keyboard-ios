@@ -223,6 +223,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
     func didSelectEmoji(_ emoji: String) {
         textDocumentProxy.insertText(emoji)
         EmojiRecentsManager.shared.recordUsage(emoji)
+        emojiKeyboardView?.reloadRecents()
     }
     
     func didTapABCKey() {
