@@ -28,7 +28,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
     private var lastShiftTapTime: TimeInterval = 0
     private var lastSpaceTapTime: TimeInterval = 0
     
-    /// Trailing Roman compose buffer for नेपाली (Transliteration); MVP assumes composing at field end.
+    /// Trailing Roman compose buffer for नेपाली / Nepal Lipi (Transliteration); MVP assumes composing at field end.
     private var romanComposeBuffer: String = ""
     
     override func loadView() {
@@ -86,7 +86,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         if savedLanguage == .english {
             suggestionEngine.load(for: savedLanguage)
         }
-        if savedLanguage == .nepaliTransliteration {
+        if savedLanguage == .nepaliTransliteration || savedLanguage == .newaTransliteration {
             syncRomanBufferFromDocument()
         }
     }
@@ -164,8 +164,12 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
             && KeyboardSettings.shared.enableSuggestions
     }
     
+    private var isRomanTransliterationLanguage: Bool {
+        currentLanguage == .nepaliTransliteration || currentLanguage == .newaTransliteration
+    }
+    
     private var isTransliterationLetters: Bool {
-        currentLanguage == .nepaliTransliteration && currentLayoutType == .letters
+        isRomanTransliterationLanguage && currentLayoutType == .letters
     }
     
     private func refreshSuggestionBarVisibility() {
@@ -189,7 +193,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         
         hideEmojiKeyboard()
         
-        if currentLanguage == .nepaliTransliteration {
+        if isRomanTransliterationLanguage {
             if type != .letters {
                 romanComposeBuffer = ""
             } else {
@@ -298,10 +302,11 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         if text == "symbols" { switchLayout(to: .symbols); return }
         if text == "emoji" { switchLayout(to: .emoji); return }
         
-        if currentLanguage == .nepaliTransliteration && currentLayoutType == .numbers {
+        if isRomanTransliterationLanguage && currentLayoutType == .numbers {
             if text.count == 1, let ch = text.first, ch.isNumber,
                let dev = NepaliTransliterator.devanagariDigit(for: ch) {
-                textDocumentProxy.insertText(dev)
+                let out = currentLanguage == .newaTransliteration ? NepaliTransliterator.devaToNewa(dev) : dev
+                textDocumentProxy.insertText(out)
                 return
             }
         }
@@ -430,15 +435,16 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
             return
         }
         textDocumentProxy.deleteBackward()
-        if currentLanguage == .nepaliTransliteration {
+        if isRomanTransliterationLanguage {
             syncRomanBufferFromDocument()
         }
         updateSuggestions()
     }
     
     private func commitTransliterationPrimary() {
-        let chosen = NepaliTransliterator.suggestionTexts(for: romanComposeBuffer, limit: 1).first
+        let deva = NepaliTransliterator.suggestionTexts(for: romanComposeBuffer, limit: 1).first
             ?? NepaliTransliterator.transliterate(romanComposeBuffer)
+        let chosen = currentLanguage == .newaTransliteration ? NepaliTransliterator.devaToNewa(deva) : deva
         for _ in 0..<romanComposeBuffer.count {
             textDocumentProxy.deleteBackward()
         }
@@ -540,7 +546,9 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
     }
     
     private func switchToLanguage(_ language: KeyboardLanguage) {
-        if currentLanguage == .nepaliTransliteration && language != .nepaliTransliteration {
+        let leavingRoman = currentLanguage == .nepaliTransliteration || currentLanguage == .newaTransliteration
+        let enteringRoman = language == .nepaliTransliteration || language == .newaTransliteration
+        if leavingRoman && !enteringRoman {
             romanComposeBuffer = ""
         }
         currentLanguage = language
@@ -563,6 +571,8 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         if isTransliterationLetters {
             if romanComposeBuffer.isEmpty {
                 suggestionBar.updateSuggestions([])
+            } else if currentLanguage == .newaTransliteration {
+                suggestionBar.updateSuggestions(NepaliTransliterator.suggestionTextsNewa(for: romanComposeBuffer, limit: 5))
             } else {
                 suggestionBar.updateSuggestions(NepaliTransliterator.suggestionTexts(for: romanComposeBuffer, limit: 5))
             }

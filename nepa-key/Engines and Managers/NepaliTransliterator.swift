@@ -184,7 +184,19 @@ enum NepaliTransliterator {
         return nil
     }
 
-    /// Suggestion strings (Devanagari), primary first — mirrors web `getSuggestions` without dictionary.
+    /// Prefixes used to match `NepaliTransliterationDictionary` entries (Devanagari words).
+    private static func devanagariPrefixesForDictionaryLookup(_ roman: String) -> [String] {
+        let p = transliterate(roman)
+        guard !p.isEmpty else { return [] }
+        var prefixes = [p]
+        if p.hasSuffix(virama), p.count > virama.count {
+            let stripped = String(p.dropLast(virama.count))
+            if !stripped.isEmpty { prefixes.append(stripped) }
+        }
+        return prefixes
+    }
+
+    /// Suggestion strings (Devanagari), primary first — rule-based transliteration plus `NepaliTransliterationDictionary` prefix matches (same idea as the web keyboard).
     static func suggestionTexts(for buffer: String, limit: Int = 9) -> [String] {
         guard !buffer.isEmpty else { return [] }
 
@@ -259,7 +271,118 @@ enum NepaliTransliterator {
             addUnique(transliterate(noH))
         }
 
+        let dictPrefixes = devanagariPrefixesForDictionaryLookup(buffer)
+        if !dictPrefixes.isEmpty {
+            for w in NepaliTransliterationDictionary.devanagariWords {
+                guard suggestions.count < limit else { break }
+                guard !seen.contains(w) else { continue }
+                guard dictPrefixes.contains(where: { w.hasPrefix($0) }) else { continue }
+                seen.insert(w)
+                suggestions.append(w)
+            }
+        }
+
         return Array(suggestions.prefix(limit))
+    }
+
+    /// Devanagari → Nepal Lipi (Newa), from Callijatra `transliterate.html` `devaToNewa`.
+    static func devaToNewa(_ text: String) -> String {
+        let triples: [(String, String)] = [
+            ("\u{0919}\u{094D}\u{0939}", scalarString(0x11413)),
+            ("\u{091E}\u{094D}\u{0939}", scalarString(0x11419)),
+            ("\u{0930}\u{094D}\u{0939}", scalarString(0x1142D)),
+        ]
+        var single: [String: String] = [:]
+        func map(_ dev: UInt32, _ newa: UInt32) {
+            single[String(UnicodeScalar(dev)!)] = scalarString(newa)
+        }
+        map(0x0905, 0x11400); map(0x0906, 0x11401); map(0x0907, 0x11402); map(0x0908, 0x11403)
+        map(0x0909, 0x11404); map(0x090A, 0x11405); map(0x090B, 0x11406); map(0x090C, 0x11408)
+        map(0x090F, 0x1140A); map(0x0910, 0x1140B); map(0x0913, 0x1140C); map(0x0914, 0x1140D)
+        map(0x0915, 0x1140E); map(0x0916, 0x1140F); map(0x0917, 0x11410); map(0x0918, 0x11411)
+        map(0x0919, 0x11412); map(0x091A, 0x11414); map(0x091B, 0x11415); map(0x091C, 0x11416)
+        map(0x091D, 0x11417); map(0x091E, 0x11418); map(0x091F, 0x1141A); map(0x0920, 0x1141B)
+        map(0x0921, 0x1141C); map(0x0922, 0x1141D); map(0x0923, 0x1141E); map(0x0924, 0x1141F)
+        map(0x0925, 0x11420); map(0x0926, 0x11421); map(0x0927, 0x11422); map(0x0928, 0x11423)
+        map(0x092A, 0x11425); map(0x092B, 0x11426); map(0x092C, 0x11427); map(0x092D, 0x11428)
+        map(0x092E, 0x11429); map(0x092F, 0x1142B); map(0x0930, 0x1142C); map(0x0932, 0x1142E)
+        map(0x0935, 0x11430); map(0x0936, 0x11431); map(0x0937, 0x11432); map(0x0938, 0x11433)
+        map(0x0939, 0x11434); map(0x0933, 0x1142F)
+        map(0x093E, 0x11435); map(0x093F, 0x11436); map(0x0940, 0x11437); map(0x0941, 0x11438)
+        map(0x0942, 0x11439); map(0x0943, 0x1143A); map(0x0947, 0x1143E); map(0x0948, 0x1143F)
+        map(0x094B, 0x11440); map(0x094C, 0x11441); map(0x094D, 0x11442); map(0x0901, 0x11443)
+        map(0x0902, 0x11444); map(0x0903, 0x11445); map(0x093C, 0x11446); map(0x0950, 0x11449)
+        map(0x0964, 0x1144B); map(0x0965, 0x1144C)
+        map(0x0966, 0x11450); map(0x0967, 0x11451); map(0x0968, 0x11452); map(0x0969, 0x11453)
+        map(0x096A, 0x11454); map(0x096B, 0x11455); map(0x096C, 0x11456); map(0x096D, 0x11457)
+        map(0x096E, 0x11458); map(0x096F, 0x11459)
+
+        var scalars = Array(text.unicodeScalars)
+        var pos = 0
+        var out = ""
+        while pos < scalars.count {
+            var matchedTriple = false
+            if pos + 3 <= scalars.count {
+                let tri = scalars[pos..<(pos + 3)].map { String($0) }.joined()
+                for (key, val) in triples where tri == key {
+                    out += val
+                    pos += 3
+                    matchedTriple = true
+                    break
+                }
+            }
+            if matchedTriple { continue }
+            let s = String(scalars[pos])
+            out += single[s] ?? s
+            pos += 1
+        }
+        return out
+    }
+
+    private static func scalarString(_ v: UInt32) -> String {
+        guard let us = UnicodeScalar(v) else { return "" }
+        return String(us)
+    }
+
+    static func transliterateToNewa(_ roman: String) -> String {
+        devaToNewa(transliterate(roman))
+    }
+
+    private static let newaVirama = "\u{11442}"
+
+    private static func newaPrefixesForDictionaryLookup(_ roman: String) -> [String] {
+        let p = transliterateToNewa(roman)
+        guard !p.isEmpty else { return [] }
+        var prefixes = [p]
+        if p.hasSuffix(newaVirama), p.count > newaVirama.count {
+            let stripped = String(p.dropLast(newaVirama.count))
+            if !stripped.isEmpty { prefixes.append(stripped) }
+        }
+        return prefixes
+    }
+
+    /// Transliteration suggestions in Newa: Roman → Devanagari suggestions (including Nepali dictionary) mapped with `devaToNewa`, then prefix matches from `NewaTransliterationDictionary`.
+    static func suggestionTextsNewa(for buffer: String, limit: Int = 5) -> [String] {
+        let devaList = suggestionTexts(for: buffer, limit: max(limit * 3, 15))
+        var seen = Set<String>()
+        var out: [String] = []
+        for d in devaList {
+            let n = devaToNewa(d)
+            guard !seen.contains(n) else { continue }
+            seen.insert(n)
+            out.append(n)
+            if out.count >= limit { return out }
+        }
+        let newaPrefixes = newaPrefixesForDictionaryLookup(buffer)
+        guard !newaPrefixes.isEmpty else { return out }
+        for w in NewaTransliterationDictionary.newaWords {
+            guard out.count < limit else { break }
+            guard !seen.contains(w) else { continue }
+            guard newaPrefixes.contains(where: { w.hasPrefix($0) }) else { continue }
+            seen.insert(w)
+            out.append(w)
+        }
+        return out
     }
 
     static func devanagariDigit(for asciiDigit: Character) -> String? {

@@ -139,11 +139,17 @@ struct KeyboardLayout: Decodable {
         rows: defaultEnglish.rows
     )
     
+    static let defaultNewaTransliteration = KeyboardLayout(
+        languageCode: KeyboardLanguage.newaTransliteration.rawValue,
+        rows: defaultEnglish.rows
+    )
+    
     static func defaultLayout(for language: KeyboardLanguage) -> KeyboardLayout {
         switch language {
         case .english: return defaultEnglish
         case .nepaliTraditional: return defaultNepali
         case .nepaliTransliteration: return defaultNepaliTransliteration
+        case .newaTransliteration: return defaultNewaTransliteration
         }
     }
 }

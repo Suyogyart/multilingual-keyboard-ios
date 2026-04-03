@@ -13,7 +13,7 @@ class LanguageSelectorView: UIView {
     private let baseKeyFrame: CGRect
     private var highlightedIndex: Int = 0
     
-    private let slotWidth: CGFloat = 180.0
+    private let slotWidth: CGFloat = 250.0
     private let slotHeight: CGFloat = 44.0
     
     private var backgroundLayer = CAShapeLayer()

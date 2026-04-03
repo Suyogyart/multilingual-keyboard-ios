@@ -11,12 +11,14 @@ enum KeyboardLanguage: String, CaseIterable {
     case english = "en-US"
     case nepaliTraditional = "np-trad"
     case nepaliTransliteration = "np-translit"
+    case newaTransliteration = "newa-translit"
     
     var displayName: String {
         switch self {
         case .english: return "English"
         case .nepaliTraditional: return "नेपाली (Traditional)"
         case .nepaliTransliteration: return "नेपाली (Transliteration)"
+        case .newaTransliteration: return "Nepal Lipi (Transliteration)"
         }
     }
     
@@ -24,7 +26,7 @@ enum KeyboardLanguage: String, CaseIterable {
         switch self {
         case .english: return true
         case .nepaliTraditional: return false
-        case .nepaliTransliteration: return true
+        case .nepaliTransliteration, .newaTransliteration: return true
         }
     }
     
