@@ -134,6 +134,31 @@ struct KeyboardLayout: Decodable {
         ]
     )
     
+    private static func layoutByMappingDevanagariToNewa(_ layout: KeyboardLayout, languageCode: String) -> KeyboardLayout {
+        KeyboardLayout(
+            languageCode: languageCode,
+            rows: layout.rows.map { row in
+                row.map { key in
+                    KeyModel(
+                        id: NepaliTransliterator.devaToNewa(key.id),
+                        primaryLabel: NepaliTransliterator.devaToNewa(key.primaryLabel),
+                        shiftLabel: key.shiftLabel.map { NepaliTransliterator.devaToNewa($0) },
+                        fontSize: key.fontSize,
+                        isAction: key.isAction,
+                        alternates: key.alternates.map { NepaliTransliterator.devaToNewa($0) },
+                        widthMultiplier: key.widthMultiplier,
+                        frame: key.frame
+                    )
+                }
+            }
+        )
+    }
+    
+    static let defaultNewaTraditional = layoutByMappingDevanagariToNewa(
+        defaultNepali,
+        languageCode: KeyboardLanguage.newaTraditional.rawValue
+    )
+    
     static let defaultNepaliTransliteration = KeyboardLayout(
         languageCode: KeyboardLanguage.nepaliTransliteration.rawValue,
         rows: defaultEnglish.rows
@@ -148,6 +173,7 @@ struct KeyboardLayout: Decodable {
         switch language {
         case .english: return defaultEnglish
         case .nepaliTraditional: return defaultNepali
+        case .newaTraditional: return defaultNewaTraditional
         case .nepaliTransliteration: return defaultNepaliTransliteration
         case .newaTransliteration: return defaultNewaTransliteration
         }

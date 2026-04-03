@@ -1,0 +1,236 @@
+{
+  "languageCode": "newa-trad-numbers",
+  "rows": [
+    [
+      {
+        "id": "𑑑",
+        "primaryLabel": "𑑑",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "𑑒",
+        "primaryLabel": "𑑒",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "𑑓",
+        "primaryLabel": "𑑓",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "𑑔",
+        "primaryLabel": "𑑔",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "𑑕",
+        "primaryLabel": "𑑕",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "𑑖",
+        "primaryLabel": "𑑖",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "𑑗",
+        "primaryLabel": "𑑗",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "𑑘",
+        "primaryLabel": "𑑘",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "𑑙",
+        "primaryLabel": "𑑙",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "𑑐",
+        "primaryLabel": "𑑐",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      }
+    ],
+    [
+      {
+        "id": "-",
+        "primaryLabel": "-",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "/",
+        "primaryLabel": "/",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": ":",
+        "primaryLabel": ":",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": ";",
+        "primaryLabel": ";",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "(",
+        "primaryLabel": "(",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": ")",
+        "primaryLabel": ")",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "$",
+        "primaryLabel": "$",
+        "alternates": [
+          "€",
+          "£",
+          "¥",
+          "₩",
+          "₽"
+        ],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "&",
+        "primaryLabel": "&",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "@",
+        "primaryLabel": "@",
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "\"",
+        "primaryLabel": "\"",
+        "alternates": [
+          "”",
+          "“",
+          "„",
+          "»",
+          "«"
+        ],
+        "widthMultiplier": 1.0
+      }
+    ],
+    [
+      {
+        "id": "symbols",
+        "primaryLabel": "#+=",
+        "fontSize": 18,
+        "isAction": true,
+        "alternates": [],
+        "widthMultiplier": 1.5
+      },
+      {
+        "id": ".",
+        "primaryLabel": ".",
+        "alternates": [
+          "…"
+        ],
+        "widthMultiplier": 1.4
+      },
+      {
+        "id": ",",
+        "primaryLabel": ",",
+        "alternates": [],
+        "widthMultiplier": 1.4
+      },
+      {
+        "id": "?",
+        "primaryLabel": "?",
+        "alternates": [
+          "¿"
+        ],
+        "widthMultiplier": 1.4
+      },
+      {
+        "id": "!",
+        "primaryLabel": "!",
+        "alternates": [
+          "¡"
+        ],
+        "widthMultiplier": 1.4
+      },
+      {
+        "id": "'",
+        "primaryLabel": "'",
+        "alternates": [
+          "’",
+          "‘",
+          "`"
+        ],
+        "widthMultiplier": 1.4
+      },
+      {
+        "id": "delete",
+        "primaryLabel": "⌫",
+        "isAction": true,
+        "alternates": [],
+        "widthMultiplier": 1.5
+      }
+    ],
+    [
+      {
+        "id": "letters",
+        "primaryLabel": "𑐎𑐏𑐐",
+        "fontSize": 18,
+        "isAction": true,
+        "alternates": [],
+        "widthMultiplier": 1.5
+      },
+      {
+        "id": "globe",
+        "primaryLabel": "🌐",
+        "isAction": true,
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "emoji",
+        "primaryLabel": "😊",
+        "isAction": true,
+        "alternates": [],
+        "widthMultiplier": 1.0
+      },
+      {
+        "id": "space",
+        "primaryLabel": "",
+        "isAction": true,
+        "alternates": [],
+        "widthMultiplier": 4.0
+      },
+      {
+        "id": "return",
+        "primaryLabel": "⏎",
+        "isAction": true,
+        "alternates": [],
+        "widthMultiplier": 2.0
+      }
+    ]
+  ]
+}
