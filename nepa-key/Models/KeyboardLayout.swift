@@ -134,10 +134,16 @@ struct KeyboardLayout: Decodable {
         ]
     )
     
+    static let defaultNepaliTransliteration = KeyboardLayout(
+        languageCode: KeyboardLanguage.nepaliTransliteration.rawValue,
+        rows: defaultEnglish.rows
+    )
+    
     static func defaultLayout(for language: KeyboardLanguage) -> KeyboardLayout {
         switch language {
         case .english: return defaultEnglish
         case .nepaliTraditional: return defaultNepali
+        case .nepaliTransliteration: return defaultNepaliTransliteration
         }
     }
 }

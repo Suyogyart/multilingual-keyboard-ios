@@ -28,6 +28,9 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
     private var lastShiftTapTime: TimeInterval = 0
     private var lastSpaceTapTime: TimeInterval = 0
     
+    /// Trailing Roman compose buffer for नेपाली (Transliteration); MVP assumes composing at field end.
+    private var romanComposeBuffer: String = ""
+    
     override func loadView() {
         self.view = KeyboardInputView() // Assuming this is defined elsewhere in your project
     }
@@ -80,15 +83,22 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         self.layoutCache[key] = defaultLayout
         
         prewarmLayouts(for: savedLanguage)
-        if savedLanguage.hasSuggestions {
+        if savedLanguage == .english {
             suggestionEngine.load(for: savedLanguage)
+        }
+        if savedLanguage == .nepaliTransliteration {
+            syncRomanBufferFromDocument()
         }
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if shouldShowSuggestionBar {
-            suggestionBar.updateSuggestions(suggestionEngine.starterSuggestions())
+            if currentLanguage == .english {
+                suggestionBar.updateSuggestions(suggestionEngine.starterSuggestions())
+            } else {
+                updateSuggestions()
+            }
         }
     }
     
@@ -154,6 +164,10 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
             && KeyboardSettings.shared.enableSuggestions
     }
     
+    private var isTransliterationLetters: Bool {
+        currentLanguage == .nepaliTransliteration && currentLayoutType == .letters
+    }
+    
     private func refreshSuggestionBarVisibility() {
         let show = shouldShowSuggestionBar
         suggestionBar.isHidden = !show
@@ -168,11 +182,20 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         self.currentLayoutType = type
         
         if type == .emoji {
+            romanComposeBuffer = ""
             showEmojiKeyboard()
             return
         }
         
         hideEmojiKeyboard()
+        
+        if currentLanguage == .nepaliTransliteration {
+            if type != .letters {
+                romanComposeBuffer = ""
+            } else {
+                syncRomanBufferFromDocument()
+            }
+        }
         
         let key = cacheKey(for: currentLanguage, type: currentLayoutType)
         
@@ -275,28 +298,80 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         if text == "symbols" { switchLayout(to: .symbols); return }
         if text == "emoji" { switchLayout(to: .emoji); return }
         
-        // 1. Handle Control Commands
-        if text == "space" || text == "" {
-            let lastWord = currentPartialWord()
+        if currentLanguage == .nepaliTransliteration && currentLayoutType == .numbers {
+            if text.count == 1, let ch = text.first, ch.isNumber,
+               let dev = NepaliTransliterator.devanagariDigit(for: ch) {
+                textDocumentProxy.insertText(dev)
+                return
+            }
+        }
+        
+        if isTransliterationLetters {
+            if text == "space" || text == "" {
+                if !romanComposeBuffer.isEmpty {
+                    commitTransliterationPrimary()
+                    textDocumentProxy.insertText(" ")
+                    lastSpaceTapTime = Date().timeIntervalSince1970
+                    updateSuggestions()
+                    return
+                }
+                let now = Date().timeIntervalSince1970
+                if (now - lastSpaceTapTime) < 0.3 {
+                    textDocumentProxy.deleteBackward()
+                    textDocumentProxy.insertText(". ")
+                    lastSpaceTapTime = 0
+                    suggestionBar.updateSuggestions([])
+                } else {
+                    textDocumentProxy.insertText(" ")
+                    lastSpaceTapTime = now
+                    suggestionBar.updateSuggestions([])
+                }
+                return
+            }
             
-            // ADDED: Double-tap spacebar for period logic
+            if text == "return" {
+                if !romanComposeBuffer.isEmpty {
+                    commitTransliterationPrimary()
+                }
+                textDocumentProxy.insertText("\n")
+                updateSuggestions()
+                return
+            }
+        }
+        
+        // 1. Space (English next-word only on English letters; otherwise plain space / period shortcut)
+        if text == "space" || text == "" {
             let now = Date().timeIntervalSince1970
+            if currentLanguage == .english && currentLayoutType == .letters {
+                let lastWord = currentPartialWord()
+                if (now - lastSpaceTapTime) < 0.3 {
+                    textDocumentProxy.deleteBackward()
+                    textDocumentProxy.insertText(". ")
+                    lastSpaceTapTime = 0
+                    suggestionBar.updateSuggestions([])
+                } else {
+                    textDocumentProxy.insertText(" ")
+                    lastSpaceTapTime = now
+                    let nextWords = suggestionEngine.nextWordSuggestions(after: lastWord, limit: 5)
+                    suggestionBar.updateSuggestions(nextWords)
+                }
+                return
+            }
             if (now - lastSpaceTapTime) < 0.3 {
-                self.textDocumentProxy.deleteBackward()
-                self.textDocumentProxy.insertText(". ") // TODO: - Change this for other languages
-                lastSpaceTapTime = 0 // Reset to prevent triple-tap bugs
+                textDocumentProxy.deleteBackward()
+                textDocumentProxy.insertText(". ")
+                lastSpaceTapTime = 0
                 suggestionBar.updateSuggestions([])
             } else {
-                self.textDocumentProxy.insertText(" ")
+                textDocumentProxy.insertText(" ")
                 lastSpaceTapTime = now
-                let nextWords = suggestionEngine.nextWordSuggestions(after: lastWord, limit: 5)
-                suggestionBar.updateSuggestions(nextWords)
+                suggestionBar.updateSuggestions([])
             }
             return
         }
         
         if text == "return" {
-            self.textDocumentProxy.insertText("\n")
+            textDocumentProxy.insertText("\n")
             suggestionBar.updateSuggestions([])
             return
         }
@@ -318,6 +393,24 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
             return
         }
         
+        if isTransliterationLetters {
+            if text.count == 1, let c = text.first, Self.isComposeRoman(c) {
+                textDocumentProxy.insertText(text)
+                romanComposeBuffer.append(text)
+                if touchEngineView.currentShiftState == .uppercased {
+                    touchEngineView.currentShiftState = .lowercased
+                }
+                updateSuggestions()
+                return
+            }
+            textDocumentProxy.insertText(text)
+            if touchEngineView.currentShiftState == .uppercased {
+                touchEngineView.currentShiftState = .lowercased
+            }
+            updateSuggestions()
+            return
+        }
+        
         // 2. Insert the standard character
         self.textDocumentProxy.insertText(text)
         
@@ -330,8 +423,51 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
     }
     
     func deleteCharacter() {
-        self.textDocumentProxy.deleteBackward()
+        if isTransliterationLetters && !romanComposeBuffer.isEmpty {
+            romanComposeBuffer.removeLast()
+            textDocumentProxy.deleteBackward()
+            updateSuggestions()
+            return
+        }
+        textDocumentProxy.deleteBackward()
+        if currentLanguage == .nepaliTransliteration {
+            syncRomanBufferFromDocument()
+        }
         updateSuggestions()
+    }
+    
+    private func commitTransliterationPrimary() {
+        let chosen = NepaliTransliterator.suggestionTexts(for: romanComposeBuffer, limit: 1).first
+            ?? NepaliTransliterator.transliterate(romanComposeBuffer)
+        for _ in 0..<romanComposeBuffer.count {
+            textDocumentProxy.deleteBackward()
+        }
+        textDocumentProxy.insertText(chosen)
+        romanComposeBuffer = ""
+    }
+    
+    private func syncRomanBufferFromDocument() {
+        let ctx = textDocumentProxy.documentContextBeforeInput ?? ""
+        romanComposeBuffer = Self.extractTrailingRomanCompose(from: ctx)
+    }
+    
+    private static func extractTrailingRomanCompose(from context: String) -> String {
+        var s = ""
+        for ch in context.reversed() {
+            if isComposeRoman(ch) {
+                s.append(ch)
+            } else {
+                break
+            }
+        }
+        return String(s.reversed())
+    }
+    
+    private static func isComposeRoman(_ ch: Character) -> Bool {
+        if ch == "~" || ch == "|" { return true }
+        guard let s = ch.unicodeScalars.first, s.isASCII else { return false }
+        let v = s.value
+        return (v >= 65 && v <= 90) || (v >= 97 && v <= 122)
     }
     
     // --- Alternate Popover Handling ---
@@ -348,8 +484,18 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
     
     func insertSelectedAlternateCharacter() {
         guard let char = activeCalloutView?.getSelectedCharacter() else { return }
+        if isTransliterationLetters {
+            if char.count == 1, let c = char.first, Self.isComposeRoman(c) {
+                textDocumentProxy.insertText(char)
+                romanComposeBuffer.append(char)
+            } else {
+                textDocumentProxy.insertText(char)
+                syncRomanBufferFromDocument()
+            }
+            updateSuggestions()
+            return
+        }
         self.textDocumentProxy.insertText(char)
-        // No input click here, handled by native OS selection feedback you added
     }
     
     func hideAlternatesPopover() {
@@ -394,11 +540,14 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
     }
     
     private func switchToLanguage(_ language: KeyboardLanguage) {
+        if currentLanguage == .nepaliTransliteration && language != .nepaliTransliteration {
+            romanComposeBuffer = ""
+        }
         currentLanguage = language
         KeyboardSettings.shared.selectedLanguage = language
         prewarmLayouts(for: language)
         switchLayout(to: .letters, language: language)
-        if language.hasSuggestions {
+        if language == .english {
             suggestionEngine.load(for: language)
         }
     }
@@ -408,6 +557,15 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
     private func updateSuggestions() {
         guard shouldShowSuggestionBar else {
             suggestionBar.updateSuggestions([])
+            return
+        }
+        
+        if isTransliterationLetters {
+            if romanComposeBuffer.isEmpty {
+                suggestionBar.updateSuggestions([])
+            } else {
+                suggestionBar.updateSuggestions(NepaliTransliterator.suggestionTexts(for: romanComposeBuffer, limit: 5))
+            }
             return
         }
         
@@ -462,6 +620,17 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
     // MARK: - SuggestionBarDelegate
     
     func didSelectSuggestion(_ word: String) {
+        if isTransliterationLetters {
+            let count = romanComposeBuffer.count
+            for _ in 0..<count {
+                textDocumentProxy.deleteBackward()
+            }
+            textDocumentProxy.insertText(word)
+            romanComposeBuffer = ""
+            updateSuggestions()
+            return
+        }
+        
         let partial = currentPartialWord()
         for _ in 0..<partial.count {
             textDocumentProxy.deleteBackward()
