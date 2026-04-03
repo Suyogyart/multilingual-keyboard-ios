@@ -78,7 +78,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         self.currentLanguage = savedLanguage
         
         let defaultLayout = KeyboardLayout.defaultLayout(for: savedLanguage)
-        self.touchEngineView.applyLanguageLayout(defaultLayout)
+        self.touchEngineView.applyLanguageLayout(defaultLayout, language: savedLanguage)
         let key = cacheKey(for: savedLanguage, type: .letters)
         self.layoutCache[key] = defaultLayout
         
@@ -152,7 +152,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
                 self.layoutCache[key] = layout
                 
                 if self.currentLanguage == language && self.currentLayoutType == type {
-                    self.touchEngineView.applyLanguageLayout(layout)
+                    self.touchEngineView.applyLanguageLayout(layout, language: language)
                 }
             }
         }
@@ -204,7 +204,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         let key = cacheKey(for: currentLanguage, type: currentLayoutType)
         
         if let cachedLayout = layoutCache[key] {
-            self.touchEngineView.applyLanguageLayout(cachedLayout)
+            self.touchEngineView.applyLanguageLayout(cachedLayout, language: currentLanguage)
         } else {
             prewarmLayouts(for: currentLanguage)
         }
@@ -516,6 +516,13 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         guard let currentIndex = allLanguages.firstIndex(of: currentLanguage) else { return }
         let nextIndex = allLanguages.index(after: currentIndex) % allLanguages.count
         switchToLanguage(allLanguages[nextIndex])
+    }
+    
+    func switchToPreviousLanguage() {
+        let allLanguages = KeyboardLanguage.allCases
+        guard let currentIndex = allLanguages.firstIndex(of: currentLanguage) else { return }
+        let prevIndex = (currentIndex - 1 + allLanguages.count) % allLanguages.count
+        switchToLanguage(allLanguages[prevIndex])
     }
     
     func showLanguageSelector(for key: KeyModel) {

@@ -17,6 +17,7 @@ protocol KeyboardEngineDelegate: AnyObject {
     func insertSelectedAlternateCharacter()
     
     func switchToNextLanguage()
+    func switchToPreviousLanguage()
     func showLanguageSelector(for key: KeyModel)
     func hideLanguageSelector()
     func handleSlideOverLanguages(at point: CGPoint)
@@ -33,12 +34,15 @@ class KeyboardTouchEngineView: UIView {
         static let edgeInsets = UIEdgeInsets(top: 12, left: 4, bottom: 8, right: 4)
         static let keyVisualInset: CGFloat = 2.0
         static let keyCornerRadius: CGFloat = 5.0
+        static let spaceSwipeMinimumDistance: CGFloat = 36
     }
     
     // MARK: Properties (Injected)
     weak var delegate: KeyboardEngineDelegate?
     
     var currentLayout: KeyboardLayout?
+    private(set) var keyboardLanguage: KeyboardLanguage = .english
+    private var spaceSwipeStartByTouch: [UITouch: CGPoint] = [:]
     var currentShiftState: ShiftState = .lowercased {
         didSet {
             if oldValue != currentShiftState {
@@ -81,8 +85,10 @@ class KeyboardTouchEngineView: UIView {
         self.backgroundColor = .clear
     }
     
-    func applyLanguageLayout(_ layout: KeyboardLayout) {
+    func applyLanguageLayout(_ layout: KeyboardLayout, language: KeyboardLanguage) {
         self.currentLayout = layout
+        self.keyboardLanguage = language
+        self.spaceSwipeStartByTouch.removeAll()
         
         self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
         self.keyBackgroundLayers.removeAll()
@@ -123,6 +129,10 @@ extension KeyboardTouchEngineView {
             activeTouches[touch] = key
             highlight(key: key, active: true)
             
+            if key.id == "space" {
+                spaceSwipeStartByTouch[touch] = location
+            }
+            
             let specialKeyIDs = ["space", "return", "shift", "delete", "numbers", "letters", "symbols", "globe"]
             HapticEngine.shared.playTap(isSpecialKey: specialKeyIDs.contains(key.id))
             
@@ -159,6 +169,9 @@ extension KeyboardTouchEngineView {
                 if isPopoverTouch { continue }
                 
                 if let newKey = findKey(at: location), newKey.id != currentKey.id {
+                    if currentKey.id == "space" {
+                        spaceSwipeStartByTouch.removeValue(forKey: touch)
+                    }
                     if touch == longPressTouch {
                         longPressTimer?.invalidate()
                         longPressTouch = nil
@@ -207,6 +220,23 @@ extension KeyboardTouchEngineView {
             } else if let key = activeTouches[touch] {
                 if key.id == "globe" {
                     delegate?.switchToNextLanguage()
+                } else if key.id == "space" {
+                    let end = touch.location(in: self)
+                    if let start = spaceSwipeStartByTouch.removeValue(forKey: touch) {
+                        let dx = end.x - start.x
+                        let dy = end.y - start.y
+                        if abs(dx) >= Metrics.spaceSwipeMinimumDistance, abs(dx) >= abs(dy) * 1.2 {
+                            if dx > 0 {
+                                delegate?.switchToNextLanguage()
+                            } else {
+                                delegate?.switchToPreviousLanguage()
+                            }
+                        } else {
+                            delegate?.insertCharacter("space")
+                        }
+                    } else {
+                        delegate?.insertCharacter("space")
+                    }
                 } else if key.id != "delete" {
                     let controlKeys = ["space", "return", "shift", "numbers", "letters", "symbols", "emoji"]
                     
@@ -248,6 +278,7 @@ extension KeyboardTouchEngineView {
                 languageSelectorOwnerTouch = nil
                 delegate?.hideLanguageSelector()
             }
+            spaceSwipeStartByTouch.removeValue(forKey: touch)
             
             if let keyToUnhighlight = activeTouches.removeValue(forKey: touch) {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
@@ -468,30 +499,48 @@ extension KeyboardTouchEngineView {
         keyBackgroundLayers[keyModel.id] = backgroundLayer
         
         let label = UILabel()
-        var displayText = keyModel.primaryLabel
         
-        if keyModel.id == "shift" {
-            if currentShiftState == .capsLocked || currentShiftState == .uppercased {
-                displayText = "⇪"
-            } else {
-                displayText = "⇧"
+        if keyModel.id == "space" {
+            label.text = keyboardLanguage.shortDisplayName
+            let captionSize = max(9, min(12, visualFrame.height * 0.28))
+            label.font = UIFont.systemFont(ofSize: captionSize, weight: .regular)
+            label.textAlignment = .center
+            label.adjustsFontSizeToFitWidth = true
+            label.minimumScaleFactor = 0.65
+            label.numberOfLines = 1
+            label.lineBreakMode = .byTruncatingTail
+        } else {
+            var displayText = keyModel.primaryLabel
+            
+            if keyModel.id == "shift" {
+                if currentShiftState == .capsLocked || currentShiftState == .uppercased {
+                    displayText = "⇪"
+                } else {
+                    displayText = "⇧"
+                }
+            } else if isShifted, let shiftChar = keyModel.shiftLabel {
+                displayText = shiftChar
+            } else if isShifted && keyModel.primaryLabel.count == 1 {
+                displayText = keyModel.primaryLabel.uppercased()
             }
-        } else if isShifted, let shiftChar = keyModel.shiftLabel {
-            displayText = shiftChar
-        } else if isShifted && keyModel.primaryLabel.count == 1 {
-            displayText = keyModel.primaryLabel.uppercased()
+            
+            let calculatedFontSize = keyModel.fontSize ?? 22.0
+            
+            label.text = displayText
+            label.font = UIFont.systemFont(ofSize: calculatedFontSize, weight: .regular)
+            label.textAlignment = .center
         }
         
-        let calculatedFontSize = keyModel.fontSize ?? 22.0
-        
-        label.text = displayText
-        label.font = UIFont.systemFont(ofSize: calculatedFontSize, weight: .regular)
-        label.textColor = colors.textColor
-        label.textAlignment = .center
+        label.textColor = keyModel.id == "space" ? Self.spaceBarCaptionTextColor(from: colors) : colors.textColor
         label.frame = visualFrame
         
         self.addSubview(label)
         keyLabels[keyModel.id] = label
+    }
+    
+    /// Softer than primary key labels so the layout name reads as a hint, not a focus element.
+    private static func spaceBarCaptionTextColor(from colors: ThemeColors) -> UIColor {
+        colors.textColor.withAlphaComponent(0.48)
     }
 
     private func highlight(key: KeyModel, active: Bool) {
@@ -532,6 +581,7 @@ extension KeyboardTouchEngineView {
         let isShifted = currentShiftState == .uppercased || currentShiftState == .capsLocked
         
         for key in activeKeys {
+            if key.id == "space" { continue }
             if let label = keyLabels[key.id] {
                 var displayText = key.primaryLabel
                 
@@ -605,7 +655,7 @@ extension KeyboardTouchEngineView {
                 bgLayer.borderWidth = 0
             }
             
-            label.textColor = colors.textColor
+            label.textColor = key.id == "space" ? Self.spaceBarCaptionTextColor(from: colors) : colors.textColor
         }
         CATransaction.commit()
     }

@@ -2,22 +2,22 @@
   "languageCode": "en-US-symbols",
   "rows": [
     [
-      { "id": "[", "primaryLabel": "[", "alternates": [], "widthMultiplier": 1.0 },
-      { "id": "]", "primaryLabel": "]", "alternates": [], "widthMultiplier": 1.0 },
       { "id": "{", "primaryLabel": "{", "alternates": [], "widthMultiplier": 1.0 },
       { "id": "}", "primaryLabel": "}", "alternates": [], "widthMultiplier": 1.0 },
-      { "id": "#", "primaryLabel": "#", "alternates": [], "widthMultiplier": 1.0 },
-      { "id": "%", "primaryLabel": "%", "alternates": ["‰"], "widthMultiplier": 1.0 },
-      { "id": "^", "primaryLabel": "^", "alternates": [], "widthMultiplier": 1.0 },
-      { "id": "*", "primaryLabel": "*", "alternates": [], "widthMultiplier": 1.0 },
-      { "id": "+", "primaryLabel": "+", "alternates": [], "widthMultiplier": 1.0 },
-      { "id": "=", "primaryLabel": "=", "alternates": ["≠", "≈"], "widthMultiplier": 1.0 }
+      { "id": "¶", "primaryLabel": "¶", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "§", "primaryLabel": "§", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "†", "primaryLabel": "†", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "‡", "primaryLabel": "‡", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "°", "primaryLabel": "°", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "×", "primaryLabel": "×", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "÷", "primaryLabel": "÷", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "¦", "primaryLabel": "¦", "alternates": [], "widthMultiplier": 1.0 }
     ],
     [
       { "id": "_", "primaryLabel": "_", "alternates": [], "widthMultiplier": 1.0 },
       { "id": "\\", "primaryLabel": "\\", "alternates": [], "widthMultiplier": 1.0 },
       { "id": "|", "primaryLabel": "|", "alternates": [], "widthMultiplier": 1.0 },
-      { "id": "~", "primaryLabel": "~", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "∞", "primaryLabel": "∞", "alternates": [], "widthMultiplier": 1.0 },
       { "id": "<", "primaryLabel": "<", "alternates": [], "widthMultiplier": 1.0 },
       { "id": ">", "primaryLabel": ">", "alternates": [], "widthMultiplier": 1.0 },
       { "id": "€", "primaryLabel": "€", "alternates": [], "widthMultiplier": 1.0 },
@@ -26,12 +26,26 @@
       { "id": "•", "primaryLabel": "•", "alternates": ["◦"], "widthMultiplier": 1.0 }
     ],
     [
+      { "id": "™", "primaryLabel": "™", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "©", "primaryLabel": "©", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "®", "primaryLabel": "®", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "¢", "primaryLabel": "¢", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "№", "primaryLabel": "№", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "«", "primaryLabel": "«", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "»", "primaryLabel": "»", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "∂", "primaryLabel": "∂", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "∫", "primaryLabel": "∫", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "µ", "primaryLabel": "µ", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "∑", "primaryLabel": "∑", "alternates": [], "widthMultiplier": 1.0 }
+    ],
+    [
       { "id": "numbers", "primaryLabel": "123", "fontSize": 18, "isAction": true, "alternates": [], "widthMultiplier": 1.5 },
-      { "id": ".", "primaryLabel": ".", "alternates": ["…"], "widthMultiplier": 1.4 },
-      { "id": ",", "primaryLabel": ",", "alternates": [], "widthMultiplier": 1.4 },
-      { "id": "?", "primaryLabel": "?", "alternates": ["¿"], "widthMultiplier": 1.4 },
-      { "id": "!", "primaryLabel": "!", "alternates": ["¡"], "widthMultiplier": 1.4 },
-      { "id": "'", "primaryLabel": "'", "alternates": ["’", "‘", "`"], "widthMultiplier": 1.4 },
+      { "id": "–", "primaryLabel": "–", "alternates": ["—"], "widthMultiplier": 1.4 },
+      { "id": "…", "primaryLabel": "…", "alternates": [], "widthMultiplier": 1.4 },
+      { "id": "·", "primaryLabel": "·", "alternates": [], "widthMultiplier": 1.4 },
+      { "id": "‽", "primaryLabel": "‽", "alternates": [], "widthMultiplier": 1.4 },
+      { "id": "‼", "primaryLabel": "‼", "alternates": [], "widthMultiplier": 1.4 },
+      { "id": "″", "primaryLabel": "″", "alternates": ["′", "‴"], "widthMultiplier": 1.4 },
       { "id": "delete", "primaryLabel": "⌫", "isAction": true, "alternates": [], "widthMultiplier": 1.5 }
     ],
     [
