@@ -32,7 +32,7 @@
       { "id": "v", "primaryLabel": "v", "shiftLabel": "V", "alternates": [], "widthMultiplier": 1.0 },
       { "id": "b", "primaryLabel": "b", "shiftLabel": "B", "alternates": [], "widthMultiplier": 1.0 },
       { "id": "n", "primaryLabel": "n", "shiftLabel": "N", "alternates": ["ñ", "ń"], "widthMultiplier": 1.0 },
-      { "id": "m", "primaryLabel": "m", "shiftLabel": "M", "alternates": [], "widthMultiplier": 1.0 },
+      { "id": "m", "primaryLabel": "m", "shiftLabel": "M", "alternates": ["~"], "widthMultiplier": 1.0 },
       { "id": "delete", "primaryLabel": "⌫", "isAction": true, "alternates": [], "widthMultiplier": 1.5 }
     ],
     [
