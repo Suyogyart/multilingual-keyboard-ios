@@ -642,7 +642,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
             for _ in 0..<count {
                 textDocumentProxy.deleteBackward()
             }
-            textDocumentProxy.insertText(word)
+            textDocumentProxy.insertText(word + " ")
             romanComposeBuffer = ""
             updateSuggestions()
             return
