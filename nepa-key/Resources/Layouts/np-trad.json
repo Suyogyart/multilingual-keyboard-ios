@@ -22,7 +22,7 @@
         { "id": "थ", "primaryLabel": "थ", "shiftLabel": "ए", "alternates": ["थ्", "था", "थि", "थी", "थु", "थू", "थृ", "थॄ", "थॢ", "थॣ", "थे", "थै", "थो", "थौ", "थं", "थः"], "widthMultiplier": 1.0 },
         { "id": "ग", "primaryLabel": "ग", "shiftLabel": "ऐ", "alternates": ["ग्", "गा", "गि", "गी", "गु", "गू", "गृ", "गॄ", "गॢ", "गॣ", "गे", "गै", "गो", "गौ", "गं", "गः"], "widthMultiplier": 1.0 },
         { "id": "ष", "primaryLabel": "ष", "shiftLabel": "इ", "alternates": ["ष्", "षा", "षि", "षी", "षु", "षू", "षृ", "षॄ", "षॢ", "षॣ", "षे", "षै", "षो", "षौ", "षं", "षः"], "widthMultiplier": 1.0 },
-        { "id": "य", "primaryLabel": "य", "shiftLabel": "ई", "alternates": ["य्", "या", "यि", "यी", "यु", "यू", "यृ", "यॄ", "यॢ", "यॣ", "ये", "यै", "यो", "यौ", "यं", "यः"], "widthMultiplier": 1.0 },
+        { "id": "य", "primaryLabel": "य", "shiftLabel": "ई", "alternates": ["‌𑐫𑑂‌", "या", "यि", "यी", "यु", "यू", "यृ", "यॄ", "यॢ", "यॣ", "ये", "यै", "यो", "यौ", "यं", "यः"], "widthMultiplier": 1.0 },
         { "id": "उ", "primaryLabel": "उ", "shiftLabel": "ऊ", "alternates": [], "widthMultiplier": 1.0 },
         { "id": "ृ", "primaryLabel": "ृ", "shiftLabel": " ़", "alternates": [], "widthMultiplier": 1.0 },
         { "id": "े", "primaryLabel": "े", "shiftLabel": "ै", "alternates": [], "widthMultiplier": 1.0 }

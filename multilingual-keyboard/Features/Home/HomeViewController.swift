@@ -11,7 +11,7 @@ class HomeViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Keyboard"
+        title = "Newa Keyboard"
         view.backgroundColor = .systemGroupedBackground
         
         setupTableView()
@@ -62,7 +62,7 @@ class HomeViewController: UIViewController {
         
         // IMPORTANT: Ensure this matches your exact Extension Bundle ID!
         // Usually, it's the main app's bundle ID + the extension target name.
-        let keyboardExtensionID = "\(bundleID).nepa-key"
+        let keyboardExtensionID = "\(bundleID).Nepal-Lipi"
         
         let activeInputModes = UITextInputMode.activeInputModes
         
