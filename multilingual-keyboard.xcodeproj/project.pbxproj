@@ -409,13 +409,14 @@
 				DEVELOPMENT_TEAM = HHJVU2857R;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "multilingual-keyboard/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Nep Key";
+				INFOPLIST_KEY_CFBundleDisplayName = "Type Newa";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -446,13 +447,14 @@
 				DEVELOPMENT_TEAM = HHJVU2857R;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "multilingual-keyboard/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Nep Key";
+				INFOPLIST_KEY_CFBundleDisplayName = "Type Newa";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -688,8 +690,9 @@
 				DEVELOPMENT_TEAM = HHJVU2857R;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "nepa-key/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "nepa-key";
+				INFOPLIST_KEY_CFBundleDisplayName = "Nepal Lipi Keyboard";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -719,8 +722,9 @@
 				DEVELOPMENT_TEAM = HHJVU2857R;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "nepa-key/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "nepa-key";
+				INFOPLIST_KEY_CFBundleDisplayName = "Nepal Lipi Keyboard";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

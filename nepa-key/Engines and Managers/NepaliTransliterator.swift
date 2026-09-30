@@ -321,7 +321,7 @@ enum NepaliTransliterator {
         map(0x0960, 0x11407); map(0x0961, 0x11409)
         map(0x0962, 0x1143C); map(0x0963, 0x1143D)
 
-        var scalars = Array(text.unicodeScalars)
+        let scalars = Array(text.unicodeScalars)
         var pos = 0
         var out = ""
         while pos < scalars.count {
