@@ -19,7 +19,7 @@ struct AppGroupDefault<T> {
     init(key: String, defaultValue: T) {
         self.key = key
         self.defaultValue = defaultValue
-        self.defaults = UserDefaults(suiteName: "group.com.callijatra.multilingual-keyboard") ?? .standard
+        self.defaults = UserDefaults(suiteName: "group.com.suyogyart.ios.NepalLipiKeyboard") ?? .standard
     }
 
     var wrappedValue: T {
