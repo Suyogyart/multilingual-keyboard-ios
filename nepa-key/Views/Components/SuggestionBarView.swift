@@ -58,9 +58,11 @@ class SuggestionBarView: UIView {
             scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
             
             contentStack.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
-            contentStack.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+            contentStack.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
             contentStack.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor, constant: 4),
             contentStack.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor, constant: -4),
+            
+            // Locks vertical height, allows horizontal scroll
             contentStack.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor)
         ])
     }
@@ -92,7 +94,6 @@ class SuggestionBarView: UIView {
         // 2. In updateSuggestions(_:), update the loop:
         for (index, word) in words.enumerated() {
             if index > 0 {
-                // Wrap separator in a container to maintain 50% height with .fill alignment
                 let separatorContainer = UIView()
                 let separator = UIView()
                 separator.translatesAutoresizingMaskIntoConstraints = false
@@ -119,17 +120,18 @@ class SuggestionBarView: UIView {
         scrollView.setContentOffset(.zero, animated: false)
     }
     
-    // 3. Replace makePillButton to use modern configuration:
     private func makePillButton(title: String, colors: ThemeColors) -> UIButton {
-        var config = UIButton.Configuration.plain()
+        let button = UIButton(type: .custom)
+        button.setTitle(title, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+        button.setTitleColor(colors.textColor, for: .normal)
         
-        var container = AttributeContainer()
-        container.font = UIFont.systemFont(ofSize: 15, weight: .regular)
-        config.attributedTitle = AttributedString(title, attributes: container)
-        config.baseForegroundColor = colors.textColor
-        config.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 14, bottom: 6, trailing: 14)
+        // CRITICAL: Pin alignment to top. This guarantees an integer Y-origin of 0, entirely preventing Retina blur.
+        button.contentVerticalAlignment = .top
         
-        let button = UIButton(configuration: config)
+        // Push the text to the visual center. (44pt bar height - 18pt font height = 26pt diff / 2 = 13pt inset)
+        button.contentEdgeInsets = UIEdgeInsets(top: 13, left: 14, bottom: 13, right: 14)
+        
         button.addTarget(self, action: #selector(suggestionTapped(_:)), for: .touchUpInside)
         return button
     }
