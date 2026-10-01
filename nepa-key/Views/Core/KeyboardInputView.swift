@@ -11,9 +11,11 @@ import UIKit
 class KeyboardInputView: UIInputView, UIInputViewAudioFeedback {
     
     init() {
-        // .keyboard style instantly enforces correct native keyboard height bounds
-        // preventing the full-screen stretch glitch from occurring.
-        super.init(frame: .zero, inputViewStyle: .keyboard)
+        // .default avoids the translucent blur backdrop that .keyboard injects,
+        // while still enforcing correct native keyboard height bounds.
+        super.init(frame: .zero, inputViewStyle: .default)
+        // Allow Auto Layout constraints to determine the keyboard height.
+        self.allowsSelfSizing = true
     }
     
     required init?(coder: NSCoder) {

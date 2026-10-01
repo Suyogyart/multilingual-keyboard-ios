@@ -62,8 +62,27 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         }
         
         suggestionBar.applyTheme()
-        
-        self.view.subviews.filter { $0 is UIVisualEffectView }.forEach { $0.removeFromSuperview() }
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // iOS 26 "Liquid Glass" injects UIVisualEffectView blur overlays into the
+        // keyboard extension's view hierarchy (often above our own view). Strip them
+        // on every layout pass to keep the suggestion bar text crisp and readable.
+        stripSystemBlurViews(from: self.view)
+        // Also walk up the parent chain — iOS may inject the blur above our root view.
+        if let parent = self.view.superview {
+            stripSystemBlurViews(from: parent)
+        }
+    }
+    
+    /// Recursively removes any `UIVisualEffectView` that was injected by the system.
+    private func stripSystemBlurViews(from view: UIView) {
+        for subview in view.subviews {
+            if subview is UIVisualEffectView {
+                subview.removeFromSuperview()
+            }
+        }
     }
     
     override func viewDidLoad() {
@@ -126,7 +145,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         
         self.view.clipsToBounds = false
         self.view.addSubview(touchEngineView)
-//        self.view.bringSubviewToFront(suggestionBar)
+        self.view.bringSubviewToFront(suggestionBar)
 //        self.view.bringSubviewToFront(touchEngineView)
         
         NSLayoutConstraint.activate([

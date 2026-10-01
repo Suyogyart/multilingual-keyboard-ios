@@ -47,7 +47,7 @@ class SuggestionBarView: UIView {
         
         contentStack.axis = .horizontal
         contentStack.spacing = 6
-        contentStack.alignment = .center
+        contentStack.alignment = .fill
         contentStack.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(contentStack)
         
@@ -89,31 +89,47 @@ class SuggestionBarView: UIView {
         
         let colors = ThemeManager.current(traitCollection: traitCollection)
         
+        // 2. In updateSuggestions(_:), update the loop:
         for (index, word) in words.enumerated() {
             if index > 0 {
+                // Wrap separator in a container to maintain 50% height with .fill alignment
+                let separatorContainer = UIView()
                 let separator = UIView()
                 separator.translatesAutoresizingMaskIntoConstraints = false
                 separator.backgroundColor = colors.textColor.withAlphaComponent(0.15)
-                contentStack.addArrangedSubview(separator)
+                
+                separatorContainer.addSubview(separator)
+                contentStack.addArrangedSubview(separatorContainer)
+                
                 NSLayoutConstraint.activate([
-                    separator.widthAnchor.constraint(equalToConstant: 1),
-                    separator.heightAnchor.constraint(equalTo: contentStack.heightAnchor, multiplier: 0.5)
+                    separatorContainer.widthAnchor.constraint(equalToConstant: 1),
+                    separator.widthAnchor.constraint(equalTo: separatorContainer.widthAnchor),
+                    separator.heightAnchor.constraint(equalTo: separatorContainer.heightAnchor, multiplier: 0.5),
+                    separator.centerYAnchor.constraint(equalTo: separatorContainer.centerYAnchor),
+                    separator.centerXAnchor.constraint(equalTo: separatorContainer.centerXAnchor)
                 ])
             }
             
             let button = makePillButton(title: word, colors: colors)
             contentStack.addArrangedSubview(button)
+            
+            // Note: The explicit button.heightAnchor constraint is completely removed here.
         }
         
         scrollView.setContentOffset(.zero, animated: false)
     }
     
+    // 3. Replace makePillButton to use modern configuration:
     private func makePillButton(title: String, colors: ThemeColors) -> UIButton {
-        let button = UIButton(type: .system)
-        button.setTitle(title, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .regular)
-        button.setTitleColor(colors.textColor, for: .normal)
-        button.contentEdgeInsets = UIEdgeInsets(top: 6, left: 14, bottom: 6, right: 14)
+        var config = UIButton.Configuration.plain()
+        
+        var container = AttributeContainer()
+        container.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+        config.attributedTitle = AttributedString(title, attributes: container)
+        config.baseForegroundColor = colors.textColor
+        config.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 14, bottom: 6, trailing: 14)
+        
+        let button = UIButton(configuration: config)
         button.addTarget(self, action: #selector(suggestionTapped(_:)), for: .touchUpInside)
         return button
     }

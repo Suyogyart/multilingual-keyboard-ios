@@ -90,7 +90,7 @@ struct KeyboardLayout: Decodable {
                 KeyModel(id: "थ", primaryLabel: "थ", shiftLabel: "ए", fontSize: nil, isAction: false, alternates: ["थ्", "था", "थि", "थी", "थु", "थू", "थृ", "थॄ", "थॢ", "थॣ", "थे", "थै", "थो", "थौ", "थं", "थः"], widthMultiplier: 1.0),
                 KeyModel(id: "ग", primaryLabel: "ग", shiftLabel: "ऐ", fontSize: nil, isAction: false, alternates: ["ग्", "गा", "गि", "गी", "गु", "गू", "गृ", "गॄ", "गॢ", "गॣ", "गे", "गै", "गो", "गौ", "गं", "गः"], widthMultiplier: 1.0),
                 KeyModel(id: "ष", primaryLabel: "ष", shiftLabel: "इ", fontSize: nil, isAction: false, alternates: ["ष्", "षा", "षि", "षी", "षु", "षू", "षृ", "षॄ", "षॢ", "षॣ", "षे", "षै", "षो", "षौ", "षं", "षः"], widthMultiplier: 1.0),
-                KeyModel(id: "य", primaryLabel: "य", shiftLabel: "ई", fontSize: nil, isAction: false, alternates: ["य्", "या", "यि", "यी", "यु", "यू", "यृ", "यॄ", "यॢ", "यॣ", "ये", "यै", "यो", "यौ", "यं", "यः"], widthMultiplier: 1.0),
+                KeyModel(id: "य", primaryLabel: "य", shiftLabel: "ई", fontSize: nil, isAction: false, alternates: ["य्‌", "या", "यि", "यी", "यु", "यू", "यृ", "यॄ", "यॢ", "यॣ", "ये", "यै", "यो", "यौ", "यं", "यः"], widthMultiplier: 1.0),
                 KeyModel(id: "उ", primaryLabel: "उ", shiftLabel: "ऊ", fontSize: nil, isAction: false, alternates: [], widthMultiplier: 1.0),
                 KeyModel(id: "ृ", primaryLabel: "ृ", shiftLabel: " ़", fontSize: nil, isAction: false, alternates: [], widthMultiplier: 1.0),
                 KeyModel(id: "े", primaryLabel: "े", shiftLabel: "ै", fontSize: nil, isAction: false, alternates: [], widthMultiplier: 1.0)
