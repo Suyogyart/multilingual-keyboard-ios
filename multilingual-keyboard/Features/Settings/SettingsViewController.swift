@@ -167,11 +167,11 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
                 cell.accessoryView = toggle
                 cell.selectionStyle = .none
                 cell.textLabel?.text = "Word Suggestions"
-                cell.detailTextLabel?.text = "Suggestions engine is currently under development and needs to be refined for better suggestions."
-                cell.detailTextLabel?.numberOfLines = 0
+                cell.detailTextLabel?.text = "Under development"
                 cell.detailTextLabel?.textColor = .secondaryLabel
                 cell.detailTextLabel?.font = .systemFont(ofSize: 12)
-                toggle.isOn = KeyboardSettings.shared.enableSuggestions
+                toggle.isOn = false
+                toggle.isEnabled = false
                 toggle.tag = 100
                 return cell
             } else {

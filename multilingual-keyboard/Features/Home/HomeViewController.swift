@@ -5,8 +5,8 @@ class HomeViewController: UIViewController {
     private let tableView = UITableView(frame: .zero, style: .insetGrouped)
     
     enum Section: Int, CaseIterable {
-        case features = 0
-        case activation = 1
+        case activation = 0
+        case features = 1
     }
 
     override func viewDidLoad() {
@@ -16,7 +16,7 @@ class HomeViewController: UIViewController {
         
         setupTableView()
         
-        // 1. ADD THIS: Listen for the app waking up from the background
+        // 1. Listen for the app waking up from the background
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(appDidBecomeActive),
@@ -25,12 +25,12 @@ class HomeViewController: UIViewController {
         )
     }
     
-    // 2. ADD THIS: Clean up the observer to prevent memory leaks
+    // 2. Clean up the observer to prevent memory leaks
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
     
-    // 3. ADD THIS: Triggered the exact millisecond the user returns from iOS Settings
+    // 3. Triggered the exact millisecond the user returns from iOS Settings
     @objc private func appDidBecomeActive() {
         // Reloading the table forces the cell to re-run isKeyboardActivated()
         tableView.reloadData()
@@ -46,6 +46,7 @@ class HomeViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.register(KeyboardActivationBannerCell.self, forCellReuseIdentifier: "activationBannerCell")
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         
         NSLayoutConstraint.activate([
@@ -56,18 +57,14 @@ class HomeViewController: UIViewController {
         ])
     }
     
-    // 4. UPDATED: The safest way to check active keyboards using KVC
+    // 4. Safest way to check active keyboards using KVC
     private func isKeyboardActivated() -> Bool {
         guard let bundleID = Bundle.main.bundleIdentifier else { return false }
         
-        // IMPORTANT: Ensure this matches your exact Extension Bundle ID!
-        // Usually, it's the main app's bundle ID + the extension target name.
         let keyboardExtensionID = "\(bundleID).Nepal-Lipi"
-        
         let activeInputModes = UITextInputMode.activeInputModes
         
         for mode in activeInputModes {
-            // mode.value(forKey:) safely extracts the hidden identifier string
             if let identifier = mode.value(forKey: "identifier") as? String, identifier == keyboardExtensionID {
                 return true
             }
@@ -86,54 +83,48 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch Section(rawValue: section) {
-        case .features: return 3
         case .activation: return 1
+        case .features: return 3
         default: return 0
         }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
-        cell.accessoryType = .disclosureIndicator
-        
         switch Section(rawValue: indexPath.section) {
+        case .activation:
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: "activationBannerCell", for: indexPath) as? KeyboardActivationBannerCell else {
+                return UITableViewCell()
+            }
+            cell.configure(isActivated: isKeyboardActivated())
+            return cell
+            
         case .features:
+            let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
+            cell.accessoryType = .disclosureIndicator
+            
             if indexPath.row == 0 {
                 cell.textLabel?.text = "Keyboard Layouts"
+                cell.detailTextLabel?.text = "Overview of supported scripts & typing modes"
                 cell.imageView?.image = UIImage(systemName: "character.cursor.ibeam")
             } else if indexPath.row == 1 {
                 cell.textLabel?.text = "Help View"
                 cell.imageView?.image = UIImage(systemName: "questionmark.circle")
             } else if indexPath.row == 2 {
                 cell.textLabel?.text = "Key Maps"
+                cell.detailTextLabel?.text = "Roman → Devanagari & Nepal Lipi transliteration rules"
                 cell.imageView?.image = UIImage(systemName: "map")
             }
+            return cell
             
-        case .activation:
-            if isKeyboardActivated() {
-                cell.textLabel?.text = "Keyboard is Activated!"
-                cell.textLabel?.textColor = .systemGreen
-                cell.imageView?.image = UIImage(systemName: "checkmark.seal.fill")
-                cell.imageView?.tintColor = .systemGreen
-                cell.accessoryType = .none
-                cell.selectionStyle = .none // Disable tapping if it's already active
-            } else {
-                cell.textLabel?.text = "Go to Settings to enable the Keyboard"
-                cell.textLabel?.textColor = .systemBlue
-                cell.imageView?.image = UIImage(systemName: "gear")
-                cell.selectionStyle = .default
-            }
-        
-        default: break
+        default:
+            return UITableViewCell()
         }
-        
-        return cell
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         switch Section(rawValue: section) {
+        case .activation: return nil
         case .features: return "Features"
-        case .activation: return "Activation"
         default: return nil
         }
     }
@@ -141,14 +132,141 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        if indexPath.section == Section.activation.rawValue {
-            // Prevent opening settings if already activated
-            if !isKeyboardActivated() {
-                if let url = URL(string: UIApplication.openSettingsURLString) {
-                    UIApplication.shared.open(url)
-                }
+        switch Section(rawValue: indexPath.section) {
+        case .activation:
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(url)
             }
+        case .features:
+            if indexPath.row == 0 {
+                let layoutsVC = KeyboardLayoutsViewController()
+                navigationController?.pushViewController(layoutsVC, animated: true)
+            } else if indexPath.row == 2 {
+                let keyMapsVC = KeyMapsViewController()
+                navigationController?.pushViewController(keyMapsVC, animated: true)
+            }
+        default:
+            break
         }
-        // TODO: Navigation to other views will go here
+    }
+}
+
+// MARK: - Activation Banner Cell (Apple Account Style)
+
+class KeyboardActivationBannerCell: UITableViewCell {
+    
+    private let iconContainerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = 28
+        view.layer.cornerCurve = .continuous
+        view.clipsToBounds = true
+        return view
+    }()
+    
+    private let iconImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.contentMode = .scaleAspectFit
+        return iv
+    }()
+    
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 19, weight: .bold)
+        label.textColor = .label
+        label.numberOfLines = 1
+        return label
+    }()
+    
+    private let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 13.5, weight: .regular)
+        label.textColor = .secondaryLabel
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    private let chevronImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        let config = UIImage.SymbolConfiguration(pointSize: 13, weight: .semibold)
+        iv.image = UIImage(systemName: "chevron.right", withConfiguration: config)
+        iv.tintColor = .tertiaryLabel
+        iv.contentMode = .scaleAspectFit
+        return iv
+    }()
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupViews()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupViews()
+    }
+    
+    private func setupViews() {
+        selectionStyle = .default
+        
+        contentView.addSubview(iconContainerView)
+        iconContainerView.addSubview(iconImageView)
+        
+        let textStack = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel])
+        textStack.translatesAutoresizingMaskIntoConstraints = false
+        textStack.axis = .vertical
+        textStack.spacing = 3
+        textStack.alignment = .leading
+        
+        contentView.addSubview(textStack)
+        contentView.addSubview(chevronImageView)
+        
+        NSLayoutConstraint.activate([
+            // Circular icon container on left
+            iconContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            iconContainerView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            iconContainerView.widthAnchor.constraint(equalToConstant: 56),
+            iconContainerView.heightAnchor.constraint(equalToConstant: 56),
+            iconContainerView.topAnchor.constraint(greaterThanOrEqualTo: contentView.topAnchor, constant: 14),
+            iconContainerView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -14),
+            
+            // Icon inside circle
+            iconImageView.centerXAnchor.constraint(equalTo: iconContainerView.centerXAnchor),
+            iconImageView.centerYAnchor.constraint(equalTo: iconContainerView.centerYAnchor),
+            iconImageView.widthAnchor.constraint(equalToConstant: 28),
+            iconImageView.heightAnchor.constraint(equalToConstant: 28),
+            
+            // Title + Subtitle stack
+            textStack.leadingAnchor.constraint(equalTo: iconContainerView.trailingAnchor, constant: 16),
+            textStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 14),
+            textStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -14),
+            textStack.trailingAnchor.constraint(equalTo: chevronImageView.leadingAnchor, constant: -8),
+            
+            // Chevron disclosure on right
+            chevronImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            chevronImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            chevronImageView.widthAnchor.constraint(equalToConstant: 10),
+            chevronImageView.heightAnchor.constraint(equalToConstant: 16)
+        ])
+    }
+    
+    func configure(isActivated: Bool) {
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 26, weight: .semibold)
+        if isActivated {
+            iconContainerView.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.14)
+            iconImageView.image = UIImage(systemName: "checkmark.seal.fill", withConfiguration: symbolConfig)
+            iconImageView.tintColor = .systemGreen
+            titleLabel.text = "Keyboard Activated"
+            subtitleLabel.text = "Nepal Lipi Keyboard is active and ready to use in any app."
+        } else {
+            iconContainerView.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.12)
+            iconImageView.image = UIImage(systemName: "keyboard.fill", withConfiguration: symbolConfig)
+            iconImageView.tintColor = .systemBlue
+            titleLabel.text = "Enable Keyboard"
+            subtitleLabel.text = "Tap to open Settings and turn on Nepal Lipi Keyboard to start typing."
+        }
     }
 }

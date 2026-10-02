@@ -66,9 +66,12 @@
 		7C3CEC482F66B1A50070CDCA /* Exceptions for "nepa-key" folder in "multilingual-keyboard" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"Engines and Managers/NepaliTransliterator.swift",
 				Models/KeyboardLanguage.swift,
 				Models/KeyboardSettings.swift,
 				Models/KeyboardTheme.swift,
+				"Resources/WordLists/newa-dictionary.swift",
+				"Resources/WordLists/np-dictionary.swift",
 			);
 			target = 7CA88EE52ED6255400E9BF74 /* multilingual-keyboard */;
 		};
