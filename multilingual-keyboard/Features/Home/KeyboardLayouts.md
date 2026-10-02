@@ -25,7 +25,7 @@ A direct character layout for **Nepal Lipi (नेपाल लिपि / Prach
 Phonetic Roman-to-Nepal Lipi typing (**EN → 𑐣𑐾𑐥𑐵𑐮𑐨𑐵𑐲𑐵**). Type phonetically using standard English letters, and the keyboard converts your input into Nepal Lipi in real time.
 
 - **How It Works:** Type words the way they sound using the Latin alphabet (e.g., `jwojalapa`, `namaste`, `nepal`).
-<!-- - **Real-Time Word Suggestions:** The suggestion bar presents prioritized Nepal Lipi candidates and prefix completions powered by the built-in `NewaTransliterationDictionary`. -->
+- **Real-Time Word Suggestions:** The suggestion bar presents prioritized Nepal Lipi candidates and prefix completions powered by the built-in `NewaTransliterationDictionary`.
 - **Space & Return Commit:** Tapping the spacebar or return key automatically commits the transliterated word.
 - **Ideal For:** Users who want to write in Nepal Lipi without needing to learn the traditional key positions.
 
@@ -47,7 +47,7 @@ A standardized Devanagari layout based on traditional Nepali typewriter and Unic
 Phonetic Roman-to-Devanagari typing (**EN → नेपाली**). Type Nepali phonetically on a familiar QWERTY layout with intelligent rule heuristics and dictionary suggestions.
 
 - **Greedy Phonetic Engine:** Seamlessly handles digraphs (`kh`, `gh`, `ch`, `chh`, `jh`, `th`, `dh`, `ph`, `bh`, `sh`), retroflex/dental pairs (`t`/`T`, `d`/`D`, `n`/`N`), vocalic R (`rri` → `ऋ`), and conjunct clustering (`kt` → `क्त`).
-<!-- - **Smart Suggestions:** Dynamic suggestion bar offers short/long vowel alternatives, aspirated variants, anusvara/chandrabindu variations, and lexicon completions from `NepaliTransliterationDictionary`. -->
+- **Smart Suggestions:** Dynamic suggestion bar offers short/long vowel alternatives, aspirated variants, anusvara/chandrabindu variations, and lexicon completions from `NepaliTransliterationDictionary`.
 - **Speed & Precision:** Tap space or return to accept the transliterated word.
 
 ---

@@ -82,7 +82,7 @@ class KeyboardLayoutsViewController: UIViewController {
         let newaTranslitBullets = [
             "Mode: Phonetic Roman-to-Nepal Lipi (EN → 𑐣𑐾𑐥𑐵𑐮𑐨𑐵𑐲𑐵).",
             "Familiar Typing: Type phonetically using standard Latin characters (e.g., 'jwojalapa', 'namaste', 'nepal').",
-            // "Live Suggestion Bar: Real-time candidate predictions transformed directly into Nepal Lipi, powered by NewaTransliterationDictionary.",
+            "Live Suggestion Bar: Real-time candidate predictions transformed directly into Nepal Lipi, powered by NewaTransliterationDictionary.",
             "Quick Commit: Press space or return to automatically commit the transliterated word.",
             "Ideal For: Anyone wanting to write authentic Nepal Lipi without memorizing traditional key positions."
         ]
@@ -115,7 +115,7 @@ class KeyboardLayoutsViewController: UIViewController {
             "Mode: Phonetic Roman-to-Devanagari (EN → नेपाली).",
             "Greedy Phonetic Engine: Recognizes digraphs (kh, gh, ch, chh, jh, th, dh, ph, bh, sh), dental/retroflex contrasts (t/T, d/D, n/N), and vocalic R (rri → ऋ).",
             "Consonant Clustering: Automatic halanta injection between consecutive consonants (e.g., 'kt' → क्त).",
-            // "Lexicon Suggestions: Suggestion bar provides short/long vowel alternatives, aspiration toggles, and dictionary prefix matches from NepaliTransliterationDictionary."
+            "Lexicon Suggestions: Suggestion bar provides short/long vowel alternatives, aspiration toggles, and dictionary prefix matches from NepaliTransliterationDictionary."
         ]
         let npTranslitCard = createCardView(
             title: "नेपाली (Transliteration)",

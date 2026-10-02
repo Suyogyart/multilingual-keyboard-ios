@@ -36,9 +36,8 @@ enum KeyboardLanguage: String, CaseIterable {
     
     var hasSuggestions: Bool {
         switch self {
-        case .english: return true
-        case .nepaliTraditional, .newaTraditional: return false
         case .nepaliTransliteration, .newaTransliteration: return true
+        case .english, .nepaliTraditional, .newaTraditional: return false
         }
     }
     
