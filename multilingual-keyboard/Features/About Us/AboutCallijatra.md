@@ -59,7 +59,7 @@ Open tools, fonts, apps and learning resources for Nepal's indigenous scripts, c
 ---
 
 **Nepal Lipi Keyboard**  
-Version 1.1.0[span_30](start_span)[span_30](end_span)
+Version 1.1.0 (1)[span_30](start_span)[span_30](end_span)
 
 Supported by  
 **Global Greengrants Fund**[span_31](start_span)[span_31](end_span)

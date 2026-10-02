@@ -171,7 +171,14 @@ class AboutCallijatraViewController: UIViewController {
         bottomMetaStack.alignment = .center
         
         let versionString = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
-        let appInfoLabel = createLabel(text: "Nepal Lipi Keyboard • Version \(versionString)", font: .preferredFont(forTextStyle: .footnote), color: .secondaryLabel, alignment: .center)
+        let buildString = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
+        let versionText: String
+        if let build = buildString, !build.isEmpty {
+            versionText = "Nepal Lipi Keyboard • Version \(versionString) (\(build))"
+        } else {
+            versionText = "Nepal Lipi Keyboard • Version \(versionString)"
+        }
+        let appInfoLabel = createLabel(text: versionText, font: .preferredFont(forTextStyle: .footnote), color: .secondaryLabel, alignment: .center)
         bottomMetaStack.addArrangedSubview(appInfoLabel)
         
         let privacyButton = UIButton(type: .system)
