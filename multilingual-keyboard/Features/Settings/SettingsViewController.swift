@@ -160,22 +160,31 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
         }
         // SECTION 2: Features
         else {
-            let cell = UITableViewCell(style: .default, reuseIdentifier: "cell")
-            let toggle = UISwitch()
-            toggle.addTarget(self, action: #selector(featureToggleChanged(_:)), for: .valueChanged)
-            cell.accessoryView = toggle
-            cell.selectionStyle = .none
-            
             if indexPath.row == 0 {
+                let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "suggestionFeatureCell")
+                let toggle = UISwitch()
+                toggle.addTarget(self, action: #selector(featureToggleChanged(_:)), for: .valueChanged)
+                cell.accessoryView = toggle
+                cell.selectionStyle = .none
                 cell.textLabel?.text = "Word Suggestions"
+                cell.detailTextLabel?.text = "Suggestions engine is currently under development and needs to be refined for better suggestions."
+                cell.detailTextLabel?.numberOfLines = 0
+                cell.detailTextLabel?.textColor = .secondaryLabel
+                cell.detailTextLabel?.font = .systemFont(ofSize: 12)
                 toggle.isOn = KeyboardSettings.shared.enableSuggestions
                 toggle.tag = 100
+                return cell
             } else {
+                let cell = UITableViewCell(style: .default, reuseIdentifier: "backgroundFeatureCell")
+                let toggle = UISwitch()
+                toggle.addTarget(self, action: #selector(featureToggleChanged(_:)), for: .valueChanged)
+                cell.accessoryView = toggle
+                cell.selectionStyle = .none
                 cell.textLabel?.text = "Keyboard Background"
                 toggle.isOn = KeyboardSettings.shared.enableKeyboardBackground
                 toggle.tag = 101
+                return cell
             }
-            return cell
         }
     }
     

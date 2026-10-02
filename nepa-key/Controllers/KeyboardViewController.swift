@@ -267,7 +267,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
     }
     
     func didSelectEmoji(_ emoji: String) {
-        textDocumentProxy.insertText(emoji)
+        insertTextWithAutocorrect(emoji)
         EmojiRecentsManager.shared.recordUsage(emoji)
         emojiKeyboardView?.reloadRecents()
     }
@@ -325,7 +325,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
             if text.count == 1, let ch = text.first, ch.isNumber,
                let dev = NepaliTransliterator.devanagariDigit(for: ch) {
                 let out = currentLanguage == .newaTransliteration ? NepaliTransliterator.devaToNewa(dev) : dev
-                textDocumentProxy.insertText(out)
+                insertTextWithAutocorrect(out)
                 return
             }
         }
@@ -334,7 +334,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
             if text == "space" || text == "" {
                 if !romanComposeBuffer.isEmpty {
                     commitTransliterationPrimary()
-                    textDocumentProxy.insertText(" ")
+                    insertTextWithAutocorrect(" ")
                     lastSpaceTapTime = Date().timeIntervalSince1970
                     updateSuggestions()
                     return
@@ -342,11 +342,11 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
                 let now = Date().timeIntervalSince1970
                 if (now - lastSpaceTapTime) < 0.3 {
                     textDocumentProxy.deleteBackward()
-                    textDocumentProxy.insertText(". ")
+                    insertTextWithAutocorrect(". ")
                     lastSpaceTapTime = 0
                     suggestionBar.updateSuggestions([])
                 } else {
-                    textDocumentProxy.insertText(" ")
+                    insertTextWithAutocorrect(" ")
                     lastSpaceTapTime = now
                     suggestionBar.updateSuggestions([])
                 }
@@ -357,7 +357,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
                 if !romanComposeBuffer.isEmpty {
                     commitTransliterationPrimary()
                 }
-                textDocumentProxy.insertText("\n")
+                insertTextWithAutocorrect("\n")
                 updateSuggestions()
                 return
             }
@@ -370,11 +370,11 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
                 let lastWord = currentPartialWord()
                 if (now - lastSpaceTapTime) < 0.3 {
                     textDocumentProxy.deleteBackward()
-                    textDocumentProxy.insertText(". ")
+                    insertTextWithAutocorrect(". ")
                     lastSpaceTapTime = 0
                     suggestionBar.updateSuggestions([])
                 } else {
-                    textDocumentProxy.insertText(" ")
+                    insertTextWithAutocorrect(" ")
                     lastSpaceTapTime = now
                     let nextWords = suggestionEngine.nextWordSuggestions(after: lastWord, limit: 5)
                     suggestionBar.updateSuggestions(nextWords)
@@ -383,11 +383,11 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
             }
             if (now - lastSpaceTapTime) < 0.3 {
                 textDocumentProxy.deleteBackward()
-                textDocumentProxy.insertText(". ")
+                insertTextWithAutocorrect(". ")
                 lastSpaceTapTime = 0
                 suggestionBar.updateSuggestions([])
             } else {
-                textDocumentProxy.insertText(" ")
+                insertTextWithAutocorrect(" ")
                 lastSpaceTapTime = now
                 suggestionBar.updateSuggestions([])
             }
@@ -395,7 +395,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         }
         
         if text == "return" {
-            textDocumentProxy.insertText("\n")
+            insertTextWithAutocorrect("\n")
             suggestionBar.updateSuggestions([])
             return
         }
@@ -427,7 +427,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
                 updateSuggestions()
                 return
             }
-            textDocumentProxy.insertText(text)
+            insertTextWithAutocorrect(text)
             if touchEngineView.currentShiftState == .uppercased {
                 touchEngineView.currentShiftState = .lowercased
             }
@@ -435,8 +435,8 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
             return
         }
         
-        // 2. Insert the standard character
-        self.textDocumentProxy.insertText(text)
+        // 2. Insert the standard character (with autocorrect for य् -> य्‌ and 𑐫𑑂 -> 𑐫𑑂‌)
+        insertTextWithAutocorrect(text)
         
         // 3. Auto-revert single-shift state
         if touchEngineView.currentShiftState == .uppercased {
@@ -467,7 +467,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         for _ in 0..<romanComposeBuffer.count {
             textDocumentProxy.deleteBackward()
         }
-        textDocumentProxy.insertText(chosen)
+        insertTextWithAutocorrect(chosen)
         romanComposeBuffer = ""
     }
     
@@ -514,13 +514,13 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
                 textDocumentProxy.insertText(char)
                 romanComposeBuffer.append(char)
             } else {
-                textDocumentProxy.insertText(char)
+                insertTextWithAutocorrect(char)
                 syncRomanBufferFromDocument()
             }
             updateSuggestions()
             return
         }
-        self.textDocumentProxy.insertText(char)
+        insertTextWithAutocorrect(char)
     }
     
     func hideAlternatesPopover() {
@@ -661,7 +661,7 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
             for _ in 0..<count {
                 textDocumentProxy.deleteBackward()
             }
-            textDocumentProxy.insertText(word + " ")
+            insertTextWithAutocorrect(word + " ")
             romanComposeBuffer = ""
             updateSuggestions()
             return
@@ -671,9 +671,59 @@ class KeyboardViewController: UIInputViewController, KeyboardEngineDelegate, Sug
         for _ in 0..<partial.count {
             textDocumentProxy.deleteBackward()
         }
-        textDocumentProxy.insertText(word + " ")
+        insertTextWithAutocorrect(word + " ")
         let nextWords = suggestionEngine.nextWordSuggestions(after: word, limit: 5)
         suggestionBar.updateSuggestions(nextWords)
+    }
+    
+    // MARK: - Autocorrect & Text Insertion
+    
+    private func insertTextWithAutocorrect(_ text: String) {
+        let textToInsert = autocorrectTextForInsertion(text)
+        self.textDocumentProxy.insertText(textToInsert)
+    }
+    
+    private func autocorrectTextForInsertion(_ text: String) -> String {
+        let context = textDocumentProxy.documentContextBeforeInput ?? ""
+        var toInsert = text
+        
+        // 1. If input field already ends with Devanagari "य" (U+092F) and incoming text begins with "्" (U+094D),
+        // replace with "्\u{200C}" (adding Zero Width Non-Joiner U+200C after virama).
+        if toInsert.hasPrefix("\u{094D}") && context.unicodeScalars.last?.value == 0x092F {
+            let indexAfterVirama = toInsert.index(after: toInsert.startIndex)
+            let remainder = toInsert[indexAfterVirama...]
+            if !remainder.hasPrefix("\u{200C}") {
+                toInsert = "\u{094D}\u{200C}" + remainder
+            }
+        }
+        // 2. If input field already ends with Newa "𑐫" (U+1142B) and incoming text begins with "𑑂" (U+11442),
+        // replace with "𑑂\u{200C}" (adding Zero Width Non-Joiner U+200C after virama).
+        else if toInsert.hasPrefix("\u{11442}") && context.unicodeScalars.last?.value == 0x1142B {
+            let indexAfterVirama = toInsert.index(after: toInsert.startIndex)
+            let remainder = toInsert[indexAfterVirama...]
+            if !remainder.hasPrefix("\u{200C}") {
+                toInsert = "\u{11442}\u{200C}" + remainder
+            }
+        }
+        
+        // 3. If context already ends in unjoined "य्" (0x092F, 0x094D) or "𑐫𑑂" (0x1142B, 0x11442) without ZWNJ,
+        // prepend ZWNJ (U+200C) before inserting the next character so it stays properly unjoined.
+        let ctxScalars = Array(context.unicodeScalars)
+        if ctxScalars.count >= 2 {
+            let lastTwo = [ctxScalars[ctxScalars.count - 2].value, ctxScalars[ctxScalars.count - 1].value]
+            if (lastTwo == [0x092F, 0x094D] || lastTwo == [0x1142B, 0x11442]) && !toInsert.hasPrefix("\u{200C}") {
+                toInsert = "\u{200C}" + toInsert
+            }
+        }
+        
+        // 4. Ensure any internal occurrences of "य्" (U+092F U+094D) or "𑐫𑑂" (U+1142B U+11442)
+        // within the inserted text itself are followed by ZWNJ (U+200C).
+        toInsert = toInsert.replacingOccurrences(of: "\u{092F}\u{094D}", with: "\u{092F}\u{094D}\u{200C}")
+                           .replacingOccurrences(of: "\u{092F}\u{094D}\u{200C}\u{200C}", with: "\u{092F}\u{094D}\u{200C}")
+        toInsert = toInsert.replacingOccurrences(of: "\u{1142B}\u{11442}", with: "\u{1142B}\u{11442}\u{200C}")
+                           .replacingOccurrences(of: "\u{1142B}\u{11442}\u{200C}\u{200C}", with: "\u{1142B}\u{11442}\u{200C}")
+        
+        return toInsert
     }
 }
 

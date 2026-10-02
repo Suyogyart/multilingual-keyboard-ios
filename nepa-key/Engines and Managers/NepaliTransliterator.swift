@@ -174,7 +174,19 @@ enum NepaliTransliterator {
             }
             i = input.index(i, offsetBy: m.roman.count)
         }
-        return result
+        return applyYaViramaAutocorrect(result)
+    }
+
+    /// Autocorrect: in Devanagari, "य्" (\u{092F}\u{094D}) is replaced with "य्\u{200C}" (adding Zero Width Non-Joiner U+200C).
+    static func applyYaViramaAutocorrect(_ text: String) -> String {
+        text.replacingOccurrences(of: "\u{092F}\u{094D}", with: "\u{092F}\u{094D}\u{200C}")
+            .replacingOccurrences(of: "\u{092F}\u{094D}\u{200C}\u{200C}", with: "\u{092F}\u{094D}\u{200C}")
+    }
+
+    /// Autocorrect: in Nepal Lipi (Newa), "𑐫𑑂" (\u{1142B}\u{11442}) is replaced with "𑐫𑑂\u{200C}" (adding Zero Width Non-Joiner U+200C).
+    static func applyYaViramaAutocorrectNewa(_ text: String) -> String {
+        text.replacingOccurrences(of: "\u{1142B}\u{11442}", with: "\u{1142B}\u{11442}\u{200C}")
+            .replacingOccurrences(of: "\u{1142B}\u{11442}\u{200C}\u{200C}", with: "\u{1142B}\u{11442}\u{200C}")
     }
 
     private static func matchRule(_ input: String, at pos: String.Index) -> Rule? {
@@ -190,7 +202,11 @@ enum NepaliTransliterator {
         let p = transliterate(roman)
         guard !p.isEmpty else { return [] }
         var prefixes = [p]
-        if p.hasSuffix(virama), p.count > virama.count {
+        let zwnjVirama = virama + "\u{200C}"
+        if p.hasSuffix(zwnjVirama), p.count > zwnjVirama.count {
+            let stripped = String(p.dropLast(zwnjVirama.count))
+            if !stripped.isEmpty { prefixes.append(stripped) }
+        } else if p.hasSuffix(virama), p.count > virama.count {
             let stripped = String(p.dropLast(virama.count))
             if !stripped.isEmpty { prefixes.append(stripped) }
         }
@@ -340,7 +356,7 @@ enum NepaliTransliterator {
             out += single[s] ?? s
             pos += 1
         }
-        return out
+        return applyYaViramaAutocorrectNewa(out)
     }
 
     private static func scalarString(_ v: UInt32) -> String {
@@ -358,7 +374,11 @@ enum NepaliTransliterator {
         let p = transliterateToNewa(roman)
         guard !p.isEmpty else { return [] }
         var prefixes = [p]
-        if p.hasSuffix(newaVirama), p.count > newaVirama.count {
+        let zwnjNewaVirama = newaVirama + "\u{200C}"
+        if p.hasSuffix(zwnjNewaVirama), p.count > zwnjNewaVirama.count {
+            let stripped = String(p.dropLast(zwnjNewaVirama.count))
+            if !stripped.isEmpty { prefixes.append(stripped) }
+        } else if p.hasSuffix(newaVirama), p.count > newaVirama.count {
             let stripped = String(p.dropLast(newaVirama.count))
             if !stripped.isEmpty { prefixes.append(stripped) }
         }

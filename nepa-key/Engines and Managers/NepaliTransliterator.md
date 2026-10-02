@@ -184,3 +184,21 @@ Transliterates Roman input to Devanagari candidates, transforms each candidate t
   - `..` → `॥` (`\u{0965}`, Double Danda)
   - `'` → `ऽ` (`\u{093D}`, Avagraha)
   - `,`, `!`, `?`, `(`, `)`, `-` → Pass-through unchanged.
+
+---
+
+## 8. Ya + Virama (ZWNJ) Autocorrect
+
+To preserve proper letterform and prevent unwanted conjunct ligatures, typing **Ya + Virama** in both Devanagari and Nepal Lipi (Newa) automatically appends a **Zero Width Non-Joiner (ZWNJ, `U+200C`)**:
+
+1. **Nepal Lipi (Newa):**
+   - When `"𑐫"` (`\u{1142B}`) is followed by `"𑑂"` (`\u{11442}`), the sequence is replaced with:
+     $$\text{"𑐫𑑂"} \implies \text{"𑐫𑑂\u{200C}"} \quad (\text{U+1142B} + \text{U+11442} + \text{U+200C})$$
+2. **Devanagari:**
+   - When `"य"` (`\u{092F}`) is followed by `"्"` (`\u{094D}`), the sequence is replaced with:
+     $$\text{"य्"} \implies \text{"य्\u{200C}"} \quad (\text{U+092F} + \text{U+094D} + \text{U+200C})$$
+
+### Execution Across All Layouts
+- **Direct Typing:** In [`KeyboardViewController.swift`](file:///Users/srt/Projects/XcodeProjects/multilingual-keyboard-ios/nepa-key/Controllers/KeyboardViewController.swift), `autocorrectTextForInsertion` inspects the trailing character in `documentContextBeforeInput`. If the field ends with `य` (or `𑐫`) and the typed character is virama `्` (or `𑑂`), it appends `\u{200C}` immediately.
+- **Transliteration & Dictionaries:** In [`NepaliTransliterator.swift`](file:///Users/srt/Projects/XcodeProjects/multilingual-keyboard-ios/nepa-key/Engines%20and%20Managers/NepaliTransliterator.swift), `applyYaViramaAutocorrect` and `applyYaViramaAutocorrectNewa` ensure transliterated candidates and dictionary prefix matches seamlessly handle the ZWNJ character.
+
