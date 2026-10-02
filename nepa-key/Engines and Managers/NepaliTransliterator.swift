@@ -45,14 +45,14 @@ enum NepaliTransliterator {
         Rule(roman: "Bh", deva: "\u{092D}", type: consonant),
         Rule(roman: "Sh", deva: "\u{0937}", type: consonant),
         Rule(roman: "sh", deva: "\u{0936}", type: consonant),
-        Rule(roman: "nh", deva: "\u{091E}", type: consonant),
+        Rule(roman: "nh", deva: "\u{0928}\u{094D}\u{0939}", type: consonant),
         Rule(roman: "Nh", deva: "\u{091E}", type: consonant),
         Rule(roman: "ng", deva: "\u{0919}", type: consonant),
         Rule(roman: "Ng", deva: "\u{0919}", type: consonant),
         Rule(roman: "hm", deva: "\u{0939}\u{094D}\u{092E}", type: consonant),
         Rule(roman: "hn", deva: "\u{0939}\u{094D}\u{0928}", type: consonant),
-        Rule(roman: "lh", deva: "\u{0933}", type: consonant),
-        Rule(roman: "Lh", deva: "\u{0933}", type: consonant),
+        Rule(roman: "lh", deva: "\u{0932}\u{094D}\u{0939}", type: consonant),
+        Rule(roman: "Lh", deva: "\u{0932}\u{094D}\u{0939}", type: consonant),
         Rule(roman: "tr", deva: "\u{0924}\u{094D}\u{0930}", type: consonant),
         Rule(roman: "Tr", deva: "\u{0924}\u{094D}\u{0930}", type: consonant),
         Rule(roman: "gn", deva: "\u{091C}\u{094D}\u{091E}", type: consonant),
@@ -75,7 +75,7 @@ enum NepaliTransliterator {
         Rule(roman: "Q", deva: "\u{0915}\u{094D}\u{0935}", type: consonant),
         Rule(roman: "C", deva: "\u{091B}", type: consonant),
         Rule(roman: "B", deva: "\u{092D}", type: consonant),
-        Rule(roman: "L", deva: "\u{0933}", type: consonant),
+        Rule(roman: "L", deva: "\u{0932}", type: consonant),
         Rule(roman: "k", deva: "\u{0915}", type: consonant),
         Rule(roman: "g", deva: "\u{0917}", type: consonant),
         Rule(roman: "c", deva: "\u{091A}", type: consonant),
@@ -282,6 +282,14 @@ enum NepaliTransliterator {
             let altBuf = String(buffer.dropLast(2)) + "sh"
             addUnique(transliterate(altBuf))
         }
+        if buffer.hasSuffix("nh") {
+            let altBuf = String(buffer.dropLast(2)) + "Nh"
+            addUnique(transliterate(altBuf))
+        }
+        if buffer.hasSuffix("Nh") {
+            let altBuf = String(buffer.dropLast(2)) + "nh"
+            addUnique(transliterate(altBuf))
+        }
 
         if buffer.last == "h", buffer.count >= 2 {
             let noH = String(buffer.dropLast())
@@ -307,7 +315,9 @@ enum NepaliTransliterator {
         let triples: [(String, String)] = [
             ("\u{0919}\u{094D}\u{0939}", scalarString(0x11413)),
             ("\u{091E}\u{094D}\u{0939}", scalarString(0x11419)),
+            ("\u{0928}\u{094D}\u{0939}", scalarString(0x11424)),
             ("\u{0930}\u{094D}\u{0939}", scalarString(0x1142D)),
+            ("\u{0932}\u{094D}\u{0939}", scalarString(0x1142F)),
         ]
         var single: [String: String] = [:]
         func map(_ dev: UInt32, _ newa: UInt32) {

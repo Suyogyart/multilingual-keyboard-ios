@@ -49,6 +49,9 @@ class HomeViewController: UIViewController {
         tableView.register(KeyboardActivationBannerCell.self, forCellReuseIdentifier: "activationBannerCell")
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         
+        // Add spacing above the top activation hero card
+        tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 16))
+        
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -84,7 +87,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch Section(rawValue: section) {
         case .activation: return 1
-        case .features: return 3
+        case .features: return 2
         default: return 0
         }
     }
@@ -107,9 +110,6 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                 cell.detailTextLabel?.text = "Overview of supported scripts & typing modes"
                 cell.imageView?.image = UIImage(systemName: "character.cursor.ibeam")
             } else if indexPath.row == 1 {
-                cell.textLabel?.text = "Help View"
-                cell.imageView?.image = UIImage(systemName: "questionmark.circle")
-            } else if indexPath.row == 2 {
                 cell.textLabel?.text = "Key Maps"
                 cell.detailTextLabel?.text = "Roman → Devanagari & Nepal Lipi transliteration rules"
                 cell.imageView?.image = UIImage(systemName: "map")
@@ -128,6 +128,24 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         default: return nil
         }
     }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        switch Section(rawValue: section) {
+        case .activation:
+            return 8
+        case .features:
+            return UITableView.automaticDimension
+        default:
+            return UITableView.automaticDimension
+        }
+    }
+
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        if Section(rawValue: section) == .activation {
+            return UIView()
+        }
+        return nil
+    }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -141,7 +159,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
             if indexPath.row == 0 {
                 let layoutsVC = KeyboardLayoutsViewController()
                 navigationController?.pushViewController(layoutsVC, animated: true)
-            } else if indexPath.row == 2 {
+            } else if indexPath.row == 1 {
                 let keyMapsVC = KeyMapsViewController()
                 navigationController?.pushViewController(keyMapsVC, animated: true)
             }

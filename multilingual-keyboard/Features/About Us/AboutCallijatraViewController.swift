@@ -127,14 +127,11 @@ class AboutCallijatraViewController: UIViewController {
         mainStackView.addArrangedSubview(socialStack)
         
         // 6. Footer
+        // 6. Footer
         let footerStack = UIStackView()
         footerStack.axis = .vertical
         footerStack.spacing = 16
         footerStack.alignment = .fill
-        
-        let versionString = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
-        let appInfoLabel = createLabel(text: "Nepal Lipi Keyboard • Version \(versionString)", font: .preferredFont(forTextStyle: .footnote), color: .secondaryLabel, alignment: .center)
-        footerStack.addArrangedSubview(appInfoLabel)
         
         // GGF Footer Card
         let ggfContainer = UIView()
@@ -167,6 +164,25 @@ class AboutCallijatraViewController: UIViewController {
         
         footerStack.addArrangedSubview(ggfContainer)
         
+        // App Info & Privacy Policy Stack (At the bottom, centered)
+        let bottomMetaStack = UIStackView()
+        bottomMetaStack.axis = .vertical
+        bottomMetaStack.spacing = 6
+        bottomMetaStack.alignment = .center
+        
+        let versionString = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+        let appInfoLabel = createLabel(text: "Nepal Lipi Keyboard • Version \(versionString)", font: .preferredFont(forTextStyle: .footnote), color: .secondaryLabel, alignment: .center)
+        bottomMetaStack.addArrangedSubview(appInfoLabel)
+        
+        let privacyButton = UIButton(type: .system)
+        privacyButton.setTitle("Privacy Policy", for: .normal)
+        privacyButton.titleLabel?.font = .systemFont(ofSize: 13.5, weight: .medium)
+        privacyButton.setTitleColor(.systemBlue, for: .normal)
+        privacyButton.addTarget(self, action: #selector(openPrivacyPolicy), for: .touchUpInside)
+        bottomMetaStack.addArrangedSubview(privacyButton)
+        
+        footerStack.addArrangedSubview(bottomMetaStack)
+        
         // Add some top padding to footer
         let footerContainer = UIView()
         footerContainer.addSubview(footerStack)
@@ -179,6 +195,11 @@ class AboutCallijatraViewController: UIViewController {
         ])
         
         mainStackView.addArrangedSubview(footerContainer)
+    }
+
+    @objc private func openPrivacyPolicy() {
+        let privacyVC = PrivacyPolicyViewController()
+        navigationController?.pushViewController(privacyVC, animated: true)
     }
 
     // MARK: - UI Helpers

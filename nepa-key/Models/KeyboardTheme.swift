@@ -42,6 +42,9 @@ enum ThemeType: String, CaseIterable {
     case system = "Default"
     case light = "Light"
     case dark = "Dark"
+    
+    // Future themes (under development)
+    /*
     case fossil = "Dark Fossil"
     case highContrast = "High Contrast"
     case red = "Sunset Red Solid"
@@ -52,6 +55,7 @@ enum ThemeType: String, CaseIterable {
     case himalayanDawn = "Himalayan Dawn"
     case heritageTerracotta = "Heritage Terracotta"
     case cyberGlass = "Cyber Glass"
+    */
     
     var displayName: String { self.rawValue }
 }

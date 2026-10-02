@@ -57,7 +57,7 @@ When typed after any consonant (e.g., with `k` = क / 𑐎):
 | `chh` or `Ch` or `C` | छ | 𑐕 | छ (Chha) |
 | `j` | ज | 𑐖 | ज (Ja) |
 | `jh` or `Jh` or `z` | झ | 𑐗 | झ (Jha) |
-| `nh` or `Nh` | ञ | 𑐘 | ञ (Nya) |
+| `Nh` | ञ | 𑐘 | ञ (Nya - Uppercase N) |
 
 ### Ta-varga (मूर्धन्य - Retroflex)
 > **Note Capitalization:** Uppercase `T`, `D`, `N` produce retroflex letters.
@@ -93,7 +93,7 @@ When typed after any consonant (e.g., with `k` = क / 𑐎):
 |:---|:---:|:---:|:---|
 | `y` | य | 𑐫 | य (Ya) |
 | `r` | र | 𑐬 | र (Ra) |
-| `l` | ल | 𑐮 | ल (La) |
+| `l` or `L` | ल | 𑐮 | ल (La) |
 | `v` or `w` | व | 𑐰 | व (Va / Wa) |
 
 ### Ushma & Additional (ऊष्म र अन्य)
@@ -103,7 +103,7 @@ When typed after any consonant (e.g., with `k` = क / 𑐎):
 | `Sh` | ष | 𑐲 | ष (Sha - Murdhanya) |
 | `s` or `S` | स | 𑐳 | स (Sa - Dantya) |
 | `h` | ह | 𑐴 | ह (Ha) |
-| `L` or `lh` or `Lh` | ळ | 𑐯 | ळ (Retroflex La) |
+| `lh` or `Lh` | ल्ह | 𑐯 | ल्ह (Lha / Newa LHA) |
 
 ---
 
@@ -118,8 +118,9 @@ When typed after any consonant (e.g., with `k` = क / 𑐎):
 | `hm` | ह्म | 𑐴𑑂𑐩 | ह्म (`h + m`) conjunct |
 | `hn` | ह्न | 𑐴𑑂𑐣 | ह्न (`h + n`) conjunct |
 | `ng` + `h` (ङ + ् + ह) | ङ्ह | 𑐓 | Nepal Lipi letter **NGAH** (Independent atomic glyph) |
-| `nh` + `h` (ञ + ् + ह) | ञ्ह | 𑐙 | Nepal Lipi letter **NYAH** (Independent atomic glyph) |
+| `nh` (न + ् + ह) | न्ह | 𑐤 | Nepal Lipi letter **NHA** (Independent atomic glyph) |
 | `r` + `h` (र + ् + ह) | र्ह | 𑐭 | Nepal Lipi letter **RHA** (Independent atomic glyph) |
+| `lh` or `Lh` (ल + ् + ह) | ल्ह | 𑐯 | Nepal Lipi letter **LHA** (Independent atomic glyph) |
 
 ---
 

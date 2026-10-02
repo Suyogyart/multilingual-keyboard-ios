@@ -84,10 +84,11 @@ Rules are matched greedily using **longest prefix matching** (`matchRule(_:at:)`
 | | `Sh` | ष | `\u{0937}` | Consonant (Retroflex) |
 | | `s`, `S` | स | `\u{0938}` | Consonant (Dental) |
 | | `ng`, `Ng` | ङ | `\u{0919}` | Consonant |
-| | `nh`, `Nh` | ञ | `\u{091E}` | Consonant |
+| | `Nh` | ञ | `\u{091E}` | Consonant (Palatal nasal, uppercase N) |
+| | `nh` | न्ह | `\u{0928}\u{094D}\u{0939}` | Consonant (Aspirated Na, Newa NHA `\u{11424}`) |
 | | `hm` | ह्म | `\u{0939}\u{094D}\u{092E}` | Consonant |
-| | `hn` | ह्न | `\u{0939}\u{094D}\u{0928}` | Consonant |
-| | `lh`, `Lh`, `L` | ळ | `\u{0933}` | Consonant |
+| | `lh`, `Lh` | ल्ह | `\u{0932}\u{094D}\u{0939}` | Consonant (Lha / Newa LHA `\u{1142F}`) |
+| | `l`, `L` | ल | `\u{0932}` | Consonant (Dental lateral) |
 | | `tr`, `Tr` | त्र | `\u{0924}\u{094D}\u{0930}` | Consonant |
 | | `gn`, `Gn`, `Z` | ज्ञ | `\u{091C}\u{094D}\u{091E}` | Consonant |
 | | `Q` | क्व | `\u{0915}\u{094D}\u{0935}` | Consonant |
@@ -161,7 +162,9 @@ Converts Devanagari strings into Nepal Lipi (Newa script, Unicode block `U+11400
 1. **3-Scalar Ligature Detection (Triples):**
    - `ङ` + `्` + `ह` (`ङ्ह`) → `𑐓` (`U+11413`, Newa Letter Nyha)
    - `ञ` + `्` + `ह` (`ञ्ह`) → `𑐙` (`U+11419`, Newa Letter Nnyha)
+   - `न` + `्` + `ह` (`न्ह`) → `𑐤` (`U+11424`, Newa Letter Nha)
    - `र` + `्` + `ह` (`र्ह`) → `𑐭` (`U+1142D`, Newa Letter Rha)
+   - `ल` + `्` + `ह` (`ल्ह`) → `𑐯` (`U+1142F`, Newa Letter Lha)
 2. **Single Scalar Replacement:**
    - Comprehensive lookup table mapping:
      - Independent vowels (`अ` → `𑐀`, `आ` → `𑐁`, etc.)

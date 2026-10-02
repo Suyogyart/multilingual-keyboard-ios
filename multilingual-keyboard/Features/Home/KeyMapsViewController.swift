@@ -102,8 +102,7 @@ class KeyMapsViewController: UIViewController {
         KeyMapItem(roman: "c, ch", devanagari: "च", newa: "𑐔", name: "च (Cha)", note: "तालव्य (Palatal). Example: chamach → चम्चा", category: .consonants),
         KeyMapItem(roman: "chh, Ch, C", devanagari: "छ", newa: "𑐕", name: "छ (Chha)", note: "तालव्य महाप्राण. Example: chhatri → छाता", category: .consonants),
         KeyMapItem(roman: "j", devanagari: "ज", newa: "𑐖", name: "ज (Ja)", note: "तालव्य घोष. Example: jal → जल", category: .consonants),
-        KeyMapItem(roman: "jh, Jh, z", devanagari: "झ", newa: "𑐗", name: "झ (Jha)", note: "तालव्य घोष महाप्राण. Example: jharana → झरना", category: .consonants),
-        KeyMapItem(roman: "nh, Nh", devanagari: "ञ", newa: "𑐘", name: "ञ (Nya)", note: "तालव्य अनुनासिक", category: .consonants),
+        KeyMapItem(roman: "Nh", devanagari: "ञ", newa: "𑐘", name: "ञ (Nya)", note: "तालव्य अनुनासिक (Uppercase N)", category: .consonants),
 
         // MARK: Consonants - Ta-varga (Retroflex)
         KeyMapItem(roman: "T", devanagari: "ट", newa: "𑐚", name: "ट (Ta - Retroflex)", note: "मूर्धन्य (Uppercase T). Example: Topi → टोपी", category: .consonants),
@@ -129,13 +128,14 @@ class KeyMapsViewController: UIViewController {
         // MARK: Consonants - Antastha & Ushma
         KeyMapItem(roman: "y", devanagari: "य", newa: "𑐫", name: "य (Ya)", note: "अन्तस्थ. Followed by virama gets ZWNJ: य्‌ / 𑐫𑑂‌", category: .consonants),
         KeyMapItem(roman: "r", devanagari: "र", newa: "𑐬", name: "र (Ra)", note: "कम्पित अन्तस्थ. Example: raat → रात", category: .consonants),
-        KeyMapItem(roman: "l", devanagari: "ल", newa: "𑐮", name: "ल (La)", note: "पार्श्विक अन्तस्थ. Example: laal → लाल", category: .consonants),
+        KeyMapItem(roman: "nh", devanagari: "न्ह", newa: "𑐤", name: "न्ह (Nha)", note: "न + ह संयुक्त / नेवा: 𑐤 (Newa letter NHA)", category: .consonants),
+        KeyMapItem(roman: "l, L", devanagari: "ल", newa: "𑐮", name: "ल (La)", note: "पार्श्विक अन्तस्थ. Example: laal → लाल", category: .consonants),
         KeyMapItem(roman: "v, w", devanagari: "व", newa: "𑐰", name: "व (Va / Wa)", note: "दन्त्यौष्ठ्य अन्तस्थ. Example: vikas → विकास", category: .consonants),
         KeyMapItem(roman: "sh", devanagari: "श", newa: "𑐱", name: "श (Talavya Sha)", note: "तालव्य ऊष्म. Example: shanti → शान्ति", category: .consonants),
         KeyMapItem(roman: "Sh", devanagari: "ष", newa: "𑐲", name: "ष (Murdhanya Sha)", note: "मूर्धन्य ऊष्म (Uppercase S). Example: kaShTa → कष्ट", category: .consonants),
         KeyMapItem(roman: "s, S", devanagari: "स", newa: "𑐳", name: "स (Dantya Sa)", note: "दन्त्य ऊष्म. Example: sach → सच", category: .consonants),
         KeyMapItem(roman: "h", devanagari: "ह", newa: "𑐴", name: "ह (Ha)", note: "कण्ठ्य ऊष्म. Example: haat → हात", category: .consonants),
-        KeyMapItem(roman: "L, lh, Lh", devanagari: "ळ", newa: "𑐯", name: "ळ (Retroflex La)", note: "मूर्धन्य ल (वैदिक / नेवा)", category: .consonants),
+        KeyMapItem(roman: "lh, Lh", devanagari: "ल्ह", newa: "𑐯", name: "ल्ह (Lha)", note: "ल + ह संयुक्त / नेवा: 𑐯 (Newa letter LHA)", category: .consonants),
 
         // MARK: Vowels
         KeyMapItem(roman: "a", devanagari: "अ", newa: "𑐀", name: "अ (Short a)", note: "Independent vowel or implicit schwa on consonants", category: .vowels),
@@ -156,10 +156,10 @@ class KeyMapsViewController: UIViewController {
         KeyMapItem(roman: "gn, Gn, Z", devanagari: "ज्ञ", newa: "𑐖𑑂𑐘", name: "ज्ञ (Gya)", note: "ज + ञ संयुक्त. Example: gyan → ज्ञान", category: .conjuncts),
         KeyMapItem(roman: "Q", devanagari: "क्व", newa: "𑐎𑑂𑐰", name: "क्व (Q shortcut)", note: "क + व संयुक्त संक्षेप", category: .conjuncts),
         KeyMapItem(roman: "hm", devanagari: "ह्म", newa: "𑐴𑑂𑐩", name: "ह्म (Hma)", note: "ह + म संयुक्त. Example: brahma → ब्रह्म", category: .conjuncts),
-        KeyMapItem(roman: "hn", devanagari: "ह्न", newa: "𑐴𑑂𑐣", name: "ह्न (Hna)", note: "ह + न संयुक्त. Example: chinha → चिह्न", category: .conjuncts),
         KeyMapItem(roman: "ng + h", devanagari: "ङ्ह", newa: "𑐓", name: "𑐓 (Newa letter NGAH)", note: "Newa independent aspirated letter NGAH", category: .conjuncts),
-        KeyMapItem(roman: "nh + h", devanagari: "ञ्ह", newa: "𑐙", name: "𑐙 (Newa letter NYAH)", note: "Newa independent aspirated letter NYAH", category: .conjuncts),
+        KeyMapItem(roman: "nh", devanagari: "न्ह", newa: "𑐤", name: "𑐤 (Newa letter NHA)", note: "Newa independent aspirated letter NHA / Devanagari न्ह", category: .conjuncts),
         KeyMapItem(roman: "r + h", devanagari: "र्ह", newa: "𑐭", name: "𑐭 (Newa letter RHA)", note: "Newa independent aspirated letter RHA", category: .conjuncts),
+        KeyMapItem(roman: "lh, Lh", devanagari: "ल्ह", newa: "𑐯", name: "𑐯 (Newa letter LHA)", note: "Newa independent aspirated letter LHA / Devanagari ल्ह", category: .conjuncts),
 
         // MARK: Diacritics
         KeyMapItem(roman: "M", devanagari: "ं", newa: "𑑄", name: "Anusvara (शिरोबिन्दु)", note: "Nasal dot. Example: saMbidhan → संविधान / 𑐳𑑄𑐰𑐶𑐢𑐵𑐣", category: .diacritics),
@@ -208,11 +208,11 @@ class KeyMapsViewController: UIViewController {
             badge: "Casing"
         ),
         TransliterationRuleItem(
-            title: "Newa Special Aspirated Triplets",
-            romanExample: "ng+h, nh+h, r+h",
-            devaResult: "ङ्ह, ञ्ह, र्ह",
-            newaResult: "𑐓, 𑐙, 𑐭",
-            explanation: "The transliteration engine automatically converts ङ+्+ह, ञ+्+ह, and र+्+ह into the dedicated native Nepal Lipi letters NGAH (𑐓), NYAH (𑐙), and RHA (𑐭).",
+            title: "Newa Special Aspirated Letters",
+            romanExample: "ng+h, nh, r+h, lh",
+            devaResult: "ङ्ह, न्ह, र्ह, ल्ह",
+            newaResult: "𑐓, 𑐤, 𑐭, 𑐯",
+            explanation: "The transliteration engine automatically converts 'ng+h' (ङ्ह), 'nh' (न्ह), 'r+h' (र्ह), and 'lh'/'Lh' (ल्ह) into dedicated native Nepal Lipi letters NGAH (𑐓), NHA (𑐤), RHA (𑐭), and LHA (𑐯).",
             badge: "Nepal Lipi"
         )
     ]

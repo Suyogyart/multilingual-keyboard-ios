@@ -18,6 +18,10 @@ class ThemeManager {
             return lightTheme()
         case .dark:
             return darkTheme()
+        case .system:
+            return isDark ? darkTheme() : lightTheme()
+            
+        /*
         case .fossil:
             return ThemeColors(
                 keyboardBackground: UIColor(red: 0.24, green: 0.22, blue: 0.20, alpha: 1.0),
@@ -132,8 +136,7 @@ class ThemeManager {
                 isLiquidGlass: true,
                 interfaceStyle: .dark
             )
-        case .system:
-            return isDark ? darkTheme() : lightTheme()
+        */
         }
     }
     

@@ -93,6 +93,14 @@ extension ThemesViewController: UITableViewDelegate, UITableViewDataSource {
         return themes.count
     }
     
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return "Appearance"
+    }
+    
+    func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        return "Theme customization is currently under development. Additional custom themes and color palettes will be available in future updates."
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "themeCell", for: indexPath)
         let theme = themes[indexPath.row]
