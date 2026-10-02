@@ -170,6 +170,7 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
                 cell.detailTextLabel?.text = "Active for transliteration layouts (under development)"
                 cell.detailTextLabel?.textColor = .secondaryLabel
                 cell.detailTextLabel?.font = .systemFont(ofSize: 12)
+                cell.detailTextLabel?.numberOfLines = 0
                 toggle.isOn = KeyboardSettings.shared.enableSuggestions
                 toggle.isEnabled = true
                 toggle.tag = 100

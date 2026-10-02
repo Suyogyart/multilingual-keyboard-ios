@@ -413,7 +413,8 @@
 				DEVELOPMENT_TEAM = HHJVU2857R;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "multilingual-keyboard/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Newa Keyboard";
+				INFOPLIST_KEY_CFBundleDisplayName = "Nepal Lipi Keyboard";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -452,7 +453,8 @@
 				DEVELOPMENT_TEAM = HHJVU2857R;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "multilingual-keyboard/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Newa Keyboard";
+				INFOPLIST_KEY_CFBundleDisplayName = "Nepal Lipi Keyboard";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;

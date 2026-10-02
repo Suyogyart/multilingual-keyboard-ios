@@ -11,7 +11,8 @@ class HomeViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Newa Keyboard"
+        navigationItem.title = "Nepal Lipi Keyboard"
+        tabBarItem.title = "Keyboard"
         view.backgroundColor = .systemGroupedBackground
         
         setupTableView()
@@ -108,10 +109,12 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
             if indexPath.row == 0 {
                 cell.textLabel?.text = "Keyboard Layouts"
                 cell.detailTextLabel?.text = "Overview of supported scripts & typing modes"
+                cell.detailTextLabel?.numberOfLines = 0
                 cell.imageView?.image = UIImage(systemName: "character.cursor.ibeam")
             } else if indexPath.row == 1 {
                 cell.textLabel?.text = "Key Maps"
                 cell.detailTextLabel?.text = "Roman → Devanagari & Nepal Lipi transliteration rules"
+                cell.detailTextLabel?.numberOfLines = 0
                 cell.imageView?.image = UIImage(systemName: "map")
             }
             return cell
@@ -123,29 +126,29 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         switch Section(rawValue: section) {
-        case .activation: return nil
-        case .features: return "Features"
+        case .activation: return "Activation"
+        case .features: return "References"
         default: return nil
         }
     }
 
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        switch Section(rawValue: section) {
-        case .activation:
-            return 8
-        case .features:
-            return UITableView.automaticDimension
-        default:
-            return UITableView.automaticDimension
-        }
-    }
-
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if Section(rawValue: section) == .activation {
-            return UIView()
-        }
-        return nil
-    }
+//    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+//        switch Section(rawValue: section) {
+//        case .activation:
+//            return 8
+//        case .features:
+//            return UITableView.automaticDimension
+//        default:
+//            return UITableView.automaticDimension
+//        }
+//    }
+//
+//    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+//        if Section(rawValue: section) == .activation {
+//            return UIView()
+//        }
+//        return nil
+//    }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)

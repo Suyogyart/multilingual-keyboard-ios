@@ -111,6 +111,18 @@ enum NepaliTransliterator {
         Rule(roman: "H", deva: "\u{0903}", type: diacritic),
         Rule(roman: "~", deva: "\u{0901}", type: diacritic),
         Rule(roman: "|", deva: "\u{094D}", type: diacritic),
+        Rule(roman: "..", deva: "\u{0965}", type: diacritic),
+        Rule(roman: ".", deva: "\u{0964}", type: diacritic),
+        Rule(roman: "0", deva: "\u{0966}", type: diacritic),
+        Rule(roman: "1", deva: "\u{0967}", type: diacritic),
+        Rule(roman: "2", deva: "\u{0968}", type: diacritic),
+        Rule(roman: "3", deva: "\u{0969}", type: diacritic),
+        Rule(roman: "4", deva: "\u{096A}", type: diacritic),
+        Rule(roman: "5", deva: "\u{096B}", type: diacritic),
+        Rule(roman: "6", deva: "\u{096C}", type: diacritic),
+        Rule(roman: "7", deva: "\u{096D}", type: diacritic),
+        Rule(roman: "8", deva: "\u{096E}", type: diacritic),
+        Rule(roman: "9", deva: "\u{096F}", type: diacritic),
     ]
 
     private static let matraMap: [String: String] = [

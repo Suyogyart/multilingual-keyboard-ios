@@ -19,7 +19,7 @@ class MainTabBarController: UITabBarController {
     
     private func setupTabs() {
         let homeVC = HomeViewController()
-        homeVC.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "keyboard"), selectedImage: UIImage(systemName: "keyboard.fill"))
+        homeVC.tabBarItem = UITabBarItem(title: "Keyboard", image: UIImage(systemName: "keyboard"), selectedImage: UIImage(systemName: "keyboard.fill"))
         
         let themesVC = ThemesViewController()
         themesVC.tabBarItem = UITabBarItem(title: "Themes", image: UIImage(systemName: "paintbrush"), selectedImage: UIImage(systemName: "paintbrush.fill"))

@@ -169,7 +169,16 @@ class KeyMapsViewController: UIViewController {
         KeyMapItem(roman: "'", devanagari: "ऽ", newa: "ऽ", name: "Avagraha (अवग्रह)", note: "Elision / prolongation sign (U+093D)", category: .diacritics),
 
         // MARK: Numbers & Punctuation
-        KeyMapItem(roman: "0 ... 9", devanagari: "० - ९", newa: "𑑐 - 𑑙", name: "Digits (अंकहरु)", note: "0=०(𑑐), 1=१(𑑑), 2=२(𑑒), 3=३(𑑓), 4=४(𑑔), 5=५(𑑕), 6=६(𑑖), 7=७(𑑗), 8=८(𑑘), 9=९(𑑙)", category: .numbers),
+        KeyMapItem(roman: "0", devanagari: "०", newa: "𑑐", name: "Zero (शून्य)", note: "0 → ० | 𑑐", category: .numbers),
+        KeyMapItem(roman: "1", devanagari: "१", newa: "𑑑", name: "One (एक)", note: "1 → १ | 𑑑", category: .numbers),
+        KeyMapItem(roman: "2", devanagari: "२", newa: "𑑒", name: "Two (दुई)", note: "2 → २ | 𑑒", category: .numbers),
+        KeyMapItem(roman: "3", devanagari: "३", newa: "𑑓", name: "Three (तीन)", note: "3 → ३ | 𑑓", category: .numbers),
+        KeyMapItem(roman: "4", devanagari: "४", newa: "𑑔", name: "Four (चार)", note: "4 → ४ | 𑑔", category: .numbers),
+        KeyMapItem(roman: "5", devanagari: "५", newa: "𑑕", name: "Five (पाँच)", note: "5 → ५ | 𑑕", category: .numbers),
+        KeyMapItem(roman: "6", devanagari: "६", newa: "𑑖", name: "Six (छ)", note: "6 → ६ | 𑑖", category: .numbers),
+        KeyMapItem(roman: "7", devanagari: "७", newa: "𑑗", name: "Seven (सात)", note: "7 → ७ | 𑑗", category: .numbers),
+        KeyMapItem(roman: "8", devanagari: "८", newa: "𑑘", name: "Eight (आठ)", note: "8 → ८ | 𑑘", category: .numbers),
+        KeyMapItem(roman: "9", devanagari: "९", newa: "𑑙", name: "Nine (नौ)", note: "9 → ९ | 𑑙", category: .numbers),
         KeyMapItem(roman: ".", devanagari: "।", newa: "𑑋", name: "Purna Virama (पूर्णविराम)", note: "Single Danda sentence separator", category: .numbers),
         KeyMapItem(roman: "..", devanagari: "॥", newa: "𑑌", name: "Dirgha Virama (दीर्घविराम)", note: "Double Danda stanza / section separator", category: .numbers),
     ]

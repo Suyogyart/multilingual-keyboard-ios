@@ -13,8 +13,8 @@ class KeyboardSettings {
     static let shared = KeyboardSettings()
     private init() {}
     
-    // Adjust Keyboard Height (1.0 is standard, 0.8 is small, 1.2 is large)
-    @AppGroupDefault(key: "keyboardHeightScale", defaultValue: 1.0)
+    // Adjust Keyboard Height (1.1 is default / 110%, 0.8 is small, 1.2 is large)
+    @AppGroupDefault(key: "keyboardHeightScale", defaultValue: 1.1)
     var keyboardHeightScale: Float
     
     // Sound & Haptics
